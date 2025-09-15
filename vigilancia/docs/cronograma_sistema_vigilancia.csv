@@ -1,0 +1,26 @@
+Id,WBS,Name,Duration,Cost,Percent Complete,Resource Assignments,Predecessors,Start Date,Finish Date
+0,0,"Sistema Inteligente de Vigilancia y Monitoreo""",84d?,€0,0%,,,19-08-2025 08:00,12-12-2025 17:00
+1,1,Inicio del proyecto,1d?,€0,0%,"Erick Martinez, Gerson Ochoa",,19-08-2025 08:00,19-08-2025 17:00
+2,2,Revisión bibliográfica sobre biometría de marcha,7d?,€0,0%,Erick Martinez,1,20-08-2025 08:00,28-08-2025 17:00
+3,3,Revisión bibliográfica sobre reconocimiento facial,7d?,€0,0%,Gerson Ochoa,1,20-08-2025 08:00,28-08-2025 17:00
+4,4,Análisis de sistemas de vigilancia inteligentes existentes,5d?,€0,0%,"Erick Martinez, Gerson Ochoa",1,20-08-2025 08:00,26-08-2025 17:00
+5,5,Definición de requisitos del sistema,3d?,€0,0%,"Erick Martinez, Gerson Ochoa","2,3,4",29-08-2025 08:00,02-09-2025 17:00
+6,6,Diseño de la arquitectura del sistema,5d?,€0,0%,Arquitecto de Software,5,03-09-2025 08:00,09-09-2025 17:00
+7,7,Modelado de la base de datos,4d?,€0,0%,Ingeniero de Base de Datos,6,10-09-2025 08:00,15-09-2025 17:00
+8,8,Configuración del entorno de desarrollo Spring Boot,2d?,€0,0%,Desarrollador Backend,6,10-09-2025 08:00,11-09-2025 17:00
+9,9,Implementación de la entidad Persona,3d?,€0,0%,Desarrollador Backend,"7,8",16-09-2025 08:00,18-09-2025 17:00
+10,10,Desarrollo de API REST para gestión de personas,5d?,€0,0%,Desarrollador Backend,9,19-09-2025 08:00,25-09-2025 17:00
+11,11,Implementación del módulo de registro de rostros,7d?,€0,0%,"Desarrollador Backend, Ingeniero de Visión Computacional",10,26-09-2025 08:00,06-10-2025 17:00
+12,12,Integración con biblioteca de reconocimiento facial,8d?,€0,0%,Ingeniero de Visión Computacional,11,07-10-2025 08:00,16-10-2025 17:00
+13,13,Desarrollo de prototipo para análisis de marcha,10d?,€0,0%,Ingeniero de Visión Computacional,12,17-10-2025 08:00,30-10-2025 17:00
+14,14,Diseño de interfaz de usuario básica,6d?,€0,0%,Diseñador UI/UX,10,26-09-2025 08:00,03-10-2025 17:00
+15,15,Implementación de frontend básico,8d?,€0,0%,Desarrollador Frontend,14,06-10-2025 08:00,15-10-2025 17:00
+16,16,Integración frontend-backend,5d?,€0,0%,"Desarrollador Backend, Desarrollador Frontend","10,15",16-10-2025 08:00,22-10-2025 17:00
+17,17,Pruebas unitarias del backend,4d?,€0,0%,Tester,"10,11,12,13",31-10-2025 08:00,05-11-2025 17:00
+18,18,Pruebas de integración,5d?,€0,0%,Tester,"16,17",06-11-2025 08:00,12-11-2025 17:00
+19,19,Pruebas con datos reales,6d?,€0,0%,"Erick Martinez, Gerson Ochoa, Tester",18,13-11-2025 08:00,20-11-2025 17:00
+20,20,Corrección de errores y ajustes,7d?,€0,0%,"Desarrollador Backend, Desarrollador Frontend",19,21-11-2025 08:00,01-12-2025 17:00
+21,21,Documentación técnica,5d?,€0,0%,Erick Martinez,20,02-12-2025 08:00,08-12-2025 17:00
+22,22,Documentación de usuario,4d?,€0,0%,Gerson Ochoa,20,02-12-2025 08:00,05-12-2025 17:00
+23,23,Preparación de presentación final,3d?,€0,0%,"Erick Martinez, Gerson Ochoa","21,22",09-12-2025 08:00,11-12-2025 17:00
+24,24,Entrega final del proyecto,1d?,€0,0%,"Erick Martinez, Gerson Ochoa",23,12-12-2025 08:00,12-12-2025 17:00
