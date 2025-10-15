@@ -22,6 +22,6 @@ Se evidenció que la automatización de procesos de monitoreo reduce significati
 ---
 
 **Autor:** Gerson David Ochoa Alarcón  
-**Docente:** Curso Integrador I – Sistemas Software  
+**Docente:** Herramientas de desarrollo Amache Sanchez Milton Freddy
 **Universidad Tecnológica del Perú (UTP)**  
 **Año:** 2025
