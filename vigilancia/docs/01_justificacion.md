@@ -1,7 +1,9 @@
-# Justificación del Proyecto
+# Justificación
 
-La seguridad ciudadana es una necesidad prioritaria en la sociedad actual. Sin embargo, los sistemas de vigilancia tradicionales presentan limitaciones importantes: dependen casi exclusivamente del reconocimiento facial y, en situaciones donde el rostro no está visible, su efectividad disminuye.
+En la actualidad, la seguridad se ha convertido en una de las principales preocupaciones tanto en espacios públicos como privados. Los métodos tradicionales de vigilancia, basados en supervisión humana y monitoreo manual, suelen ser ineficientes ante la gran cantidad de información visual que se genera diariamente.
 
-Este proyecto propone un enfoque innovador que combina el reconocimiento facial con la biometría de la marcha (forma de caminar) como método complementario de identificación. De esta manera, se busca aumentar la precisión de los sistemas de vigilancia y aportar un mayor nivel de seguridad en espacios públicos y privados.
+El presente proyecto, titulado **“Sistema de Vigilancia y Monitoreo Inteligente”**, surge como respuesta a la necesidad de implementar soluciones tecnológicas que automaticen la detección de personas y actividades sospechosas mediante el análisis de video y patrones de movimiento. El sistema busca aprovechar tecnologías de **reconocimiento facial y biometría de marcha** para mejorar la identificación de individuos en tiempo real.
 
-Además, el uso de tecnologías modernas como **Spring Boot** para el desarrollo del backend permite implementar un sistema escalable y organizado, que se puede integrar con bases de datos y módulos de procesamiento de imágenes en fases posteriores.
+La justificación técnica radica en la aplicación de herramientas de software que integren visión por computadora, bases de datos y procesamiento distribuido, con el fin de ofrecer un sistema confiable, escalable y eficiente. Desde el punto de vista social, la propuesta contribuye a mejorar la seguridad ciudadana, reduciendo riesgos y fortaleciendo la capacidad de respuesta ante incidentes.
+
+En síntesis, el proyecto se justifica por su impacto positivo en la automatización de la vigilancia, la reducción de errores humanos y el aprovechamiento de la inteligencia artificial para entornos de monitoreo continuo.

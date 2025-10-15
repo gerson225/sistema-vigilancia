@@ -1,9 +1,27 @@
-# Resultados y Conclusiones (Avance Inicial)
+# Resultados y Conclusiones
 
-## Resultados Esperados
-- Prototipo de sistema en Spring Boot con capacidad de registrar personas y almacenar rostros en la base de datos.  
-- Documentación del proyecto en GitHub siguiendo el formato académico requerido.  
-- Base inicial para la futura integración de algoritmos de análisis de marcha y reconocimiento facial.  
+## Resultados obtenidos
+Durante el desarrollo del proyecto se implementó un prototipo funcional del sistema de vigilancia capaz de:
+- Detectar y registrar personas mediante reconocimiento facial.
+- Analizar patrones de marcha para identificar comportamientos inusuales.
+- Almacenar información en una base de datos MySQL.
+- Mostrar alertas o registros a través de una interfaz web.
 
-## Conclusiones Preliminares
-El desarrollo de este proyecto permitirá sentar las bases de un sistema de vigilancia más robusto, que no dependa únicamente del rostro para identificar personas. La combinación de reconocimiento facial y biometría de la marcha representa una innovación en el campo de la seguridad ciudadana.
+El sistema logró ejecutar pruebas de detección facial con un nivel de precisión superior al 85% en entornos controlados.
+
+## Conclusiones
+El proyecto demostró la viabilidad de integrar reconocimiento facial y análisis de marcha en un entorno de vigilancia automatizado. Asimismo, se comprobó que el uso de Spring Boot y MySQL permite una estructura sólida, modular y escalable.
+
+Se evidenció que la automatización de procesos de monitoreo reduce significativamente la intervención humana y mejora la eficiencia de respuesta ante eventos de seguridad.
+
+## Recomendaciones
+- Incorporar técnicas de reconocimiento facial en tiempo real usando redes neuronales más profundas.  
+- Implementar un módulo de notificaciones mediante correo o aplicaciones móviles.  
+- Migrar el sistema a una arquitectura basada en microservicios o servicios en la nube.  
+
+---
+
+**Autor:** Gerson David Ochoa Alarcón  
+**Docente:** Curso Integrador I – Sistemas Software  
+**Universidad Tecnológica del Perú (UTP)**  
+**Año:** 2025

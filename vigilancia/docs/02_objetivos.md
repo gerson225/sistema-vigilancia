@@ -1,10 +1,12 @@
-# Objetivos del Proyecto
+# Objetivos
 
-## Objetivo General
-Desarrollar un prototipo de sistema de vigilancia inteligente basado en **Spring Boot** que permita registrar y gestionar información de personas detectadas mediante reconocimiento facial y análisis de marcha.
+## Objetivo general
+Desarrollar un sistema de vigilancia inteligente que permita detectar y monitorear personas en tiempo real mediante técnicas de reconocimiento facial y análisis de marcha, contribuyendo a la mejora de la seguridad en entornos monitoreados.
 
-## Objetivos Específicos
-1. Analizar las técnicas de reconocimiento facial y de marcha aplicables en un sistema de vigilancia.  
-2. Implementar un backend en Spring Boot que gestione el almacenamiento de datos de personas.  
-3. Desarrollar un módulo inicial que permita registrar personas y sus rostros en la base de datos.  
-4. Proponer la integración de algoritmos de detección de marcha en fases futuras del proyecto.  
+## Objetivos específicos
+- Analizar los requerimientos funcionales y no funcionales del sistema de vigilancia.
+- Diseñar la arquitectura del sistema aplicando el patrón **Modelo–Vista–Controlador (MVC)**.
+- Implementar los módulos de detección facial y análisis de marcha utilizando librerías especializadas.
+- Desarrollar la base de datos para el almacenamiento de registros e imágenes procesadas.
+- Evaluar el desempeño del sistema a través de pruebas funcionales y de precisión.
+- Documentar y presentar los resultados obtenidos, destacando las mejoras alcanzadas.
