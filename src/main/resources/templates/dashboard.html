@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      display: flex; /* coloca sidebar y contenido en fila */
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background-color: #2c3e50;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      display: block;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #34495e;
+    }
+
+    /* Contenido principal */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: white;
+      flex: 1 1 400px;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: 300px;
+      margin: 20px auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>SIVI</h2>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/alertas">Alertas</a>
+    <a href="/camaras">Cámaras</a>
+    <a href="/personas">Personas</a>
+    <a href="/detecciones">Detecciones</a>
+    <a href="/configuracion">Configuración</a>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <h1>Bienvenido al Dashboard</h1>
+    
+    <!-- Sección visible para todos -->
+    <div>
+      <h2>Resumen general</h2>
+      <p>Estadísticas básicas: cámaras activas, alertas recientes, etc.</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <h2>Estado de Cámaras</h2>
+        <canvas id="camarasChart"></canvas>
+        
+      </div>
+
+      <div class="card">
+        <h2>Alertas recientes</h2>
+        <canvas id="alertasChart"></canvas>
+      </div>
+
+      <div class="card">
+        <h2>Detecciones</h2>
+        <canvas id="deteccionesChart"></canvas>
+      </div>
+
+      <div class="card">
+        <h2>Usuarios activos</h2>
+        <canvas id="usuariosChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Sección solo para ADMINISTRADOR -->
+    <div id="admin-section" style="display:none;">
+      <h2>Panel de administración</h2>
+      <p>Gestión de usuarios, configuración avanzada, reportes completos.</p>
+    </div>
+
+    <!-- Sección solo para OPERADOR -->
+    <div id="operador-section" style="display:none;">
+      <h2>Panel de operador</h2>
+      <p>Funciones limitadas: monitoreo en tiempo real, alertas básicas.</p>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Cámaras (doughnut)
+    const camarasCtx = document.getElementById('camarasChart');
+    const camarasChart = new Chart(camarasCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Activas', 'Inactivas'],
+        datasets: [{ data: [0, 0], backgroundColor: ['#3498db', '#f1c40f'] }]
+      },
+      options: { responsive: true }
+    });
+
+    async function actualizarCamaras() {
+      try {
+        const res = await fetch("/api/camaras/estado");
+        const data = await res.json();
+        const activas = Number(data.activas || 0);
+        const inactivas = Number(data.inactivas || 0);
+
+        // Si ambas son 0, muestra un placeholder para que el gráfico no quede vacío
+        if (activas === 0 && inactivas === 0) {
+          camarasChart.data.datasets[0].data = [1, 0];
+          camarasChart.data.labels = ['Sin datos', ''];
+          camarasChart.options.plugins = { legend: { display: false } };
+        } else {
+          camarasChart.data.datasets[0].data = [activas, inactivas];
+          camarasChart.data.labels = ['Activas', 'Inactivas'];
+          camarasChart.options.plugins = { legend: { display: true } };
+        }
+        camarasChart.update();
+      } catch (err) {
+        console.error("Error cámaras:", err);
+      }
+    }
+    actualizarCamaras();
+    setInterval(actualizarCamaras, 10000);
+
+    // Alertas (bar)
+    const alertasCtx = document.getElementById('alertasChart');
+    const alertasChart = new Chart(alertasCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
+        datasets: [{ label: 'Alertas', data: [0,0,0,0,0], backgroundColor: '#e74c3c' }]
+      },
+      options: { responsive: true }
+    });
+
+    async function actualizarCamaras() {
+  try {
+    const res = await fetch("/api/camaras/estado");
+    const data = await res.json();
+    const activas = Number(data.activas || 0);
+    const inactivas = Number(data.inactivas || 0);
+    camarasChart.data.datasets[0].data = [activas, inactivas];
+    camarasChart.data.labels = ['Activas', 'Inactivas']; // 👈 fuerza etiquetas
+    camarasChart.update();
+  } catch (err) {
+    console.error("Error cámaras:", err);
+  }
+}
+    actualizarAlertas();
+    setInterval(actualizarAlertas, 10000);
+
+    // Detecciones (line) — corrige la ruta
+    const deteccionesCtx = document.getElementById('deteccionesChart');
+    const deteccionesChart = new Chart(deteccionesCtx, {
+      type: 'line',
+      data: {
+        labels: ['08:00','10:00','12:00','14:00','16:00'],
+        datasets: [{ label: 'Detecciones', data: [0,0,0,0,0], borderColor: '#2ecc71', fill: false }]
+      },
+      options: { responsive: true }
+    });
+
+    async function actualizarDetecciones() {
+      try {
+        const res = await fetch("/api/dashboard/detecciones");
+        const data = await res.json();
+        const labels = Object.keys(data);
+        const values = labels.map(k => Number(data[k] || 0));
+        deteccionesChart.data.labels = labels;
+        deteccionesChart.data.datasets[0].data = values;
+        deteccionesChart.update();
+      } catch (err) {
+        console.error("Error detecciones:", err);
+      }
+    }
+    actualizarDetecciones();
+    setInterval(actualizarDetecciones, 10000);
+
+    // Usuarios (bar horizontal)
+    const usuariosCtx = document.getElementById('usuariosChart');
+    const usuariosChart = new Chart(usuariosCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Administradores', 'Operadores'],
+        datasets: [{ label: 'Usuarios activos', data: [0,0], backgroundColor: ['#9b59b6','#1abc9c'] }]
+      },
+      options: { indexAxis: 'y', responsive: true }
+    });
+
+    async function actualizarUsuarios() {
+      try {
+        const res = await fetch("/api/usuarios/activos");
+        const data = await res.json();
+        usuariosChart.data.datasets[0].data = [
+          Number(data.administradores || 0),
+          Number(data.operadores || 0)
+        ];
+        usuariosChart.update();
+      } catch (err) {
+        console.error("Error usuarios:", err);
+      }
+    }
+    actualizarUsuarios();
+    setInterval(actualizarUsuarios, 10000);
+
+    // Mostrar secciones según rol
+    const rol = sessionStorage.getItem("rol");
+    const idUsuario = sessionStorage.getItem("idUsuario");
+    const usuario = sessionStorage.getItem("usuario");
+    
+    console.log("Rol:", rol, "ID Usuario:", idUsuario);
+
+    if (rol === "ADMINISTRADOR") {
+      document.getElementById("admin-section").style.display = "block";
+    } else if (rol === "OPERADOR") {
+      document.getElementById("operador-section").style.display = "block";
+    }
+  });
+</script>
+</body>
+</html>

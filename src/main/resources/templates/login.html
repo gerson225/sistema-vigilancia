@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - SIVI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      display: flex;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      overflow: hidden;
+      width: 700px;
+      max-width: 90%;
+    }
+
+    .logo-section {
+      background-color: #1a252f;
+      color: white;
+      padding: 40px;
+      width: 40%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .form-section {
+      padding: 40px;
+      width: 60%;
+    }
+
+    .form-section h2 {
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .login-button:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-section">
+      SIVI
+    </div>
+    <div class="form-section">
+      <h2>Bienvenido</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="usuario">Usuario</label>
+          <input type="text" id="usuario" name="usuario" required>
+        </div>
+        <div class="form-group">
+          <label for="contrasena">Contraseña</label>
+          <input type="password" id="contrasena" name="contrasena" required>
+        </div>
+        <button type="submit" class="login-button">Iniciar sesión</button>
+      </form>
+      <!-- Mensaje de respuesta -->
+      <p id="mensaje"></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault(); // evita envío clásico del formulario
+
+      const usuario = document.getElementById("usuario").value;
+      const contrasena = document.getElementById("contrasena").value;
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ usuario, contrasena })
+        });
+
+        const data = await response.json();
+        console.log("Respuesta del backend:", data);
+
+        const mensaje = document.getElementById("mensaje");
+
+        if (data.success) {
+          mensaje.style.color = "green";
+          mensaje.textContent = "Acceso correcto - Rol: " + data.rol;
+            // Guardar rol en sessionStorage
+            sessionStorage.setItem("rol", data.rol);
+            sessionStorage.setItem("idUsuario", data.idUsuario);
+            sessionStorage.setItem("usuario", usuario);
+            // Redirigir al dashboard único
+            window.location.href = "/dashboard";
+          
+        } else {
+          mensaje.style.color = "red";
+          mensaje.textContent = data.mensaje;
+        }
+      } catch (error) {
+        console.error("Error en login:", error);
+        document.getElementById("mensaje").textContent = "Error de conexión con el servidor.";
+      }
+    });
+    </script>
+</body>
+</html>
