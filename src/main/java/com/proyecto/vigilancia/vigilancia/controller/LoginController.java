@@ -18,18 +18,21 @@ public class LoginController {
         this.usuarioService = usuarioService;
     }
 
+    
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         Optional<Usuario> usuario = usuarioService.validarLogin(request.getUsuario(), request.getContrasena());
         if (usuario.isPresent()) {
-            Usuario u = usuario.get();
+            Usuario u = usuario.get();            
             return ResponseEntity.ok(
-                new LoginResponse(true, "Acceso correcto", u.getRol(), u.getIdUsuario())
+                new LoginResponse(true, "Acceso correcto", u.getRol(), u.getIdUsuario())                
             );
+            
         }
         return ResponseEntity.status(401).body(
             new LoginResponse(false, "Credenciales incorrectas", null, null)
         );
     }
+        
 }
 

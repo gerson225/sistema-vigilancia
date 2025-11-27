@@ -89,7 +89,7 @@ public class UsuarioService {
     }
 
     System.out.println("Login correcto para usuario: " + usuario + " con rol: " + encontrado.getRol());
-    return Optional.of(encontrado);
+    return Optional.of(encontrado);    
     }
 
     // Método para encriptar contraseñas inseguras

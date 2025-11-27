@@ -10,4 +10,5 @@ public class LoginViewController {
     public String mostrarLogin() {
         return "login"; // Esto busca login.html en /templates
     }
+  
 }

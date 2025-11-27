@@ -131,11 +131,12 @@
             sessionStorage.setItem("idUsuario", data.idUsuario);
             sessionStorage.setItem("usuario", usuario);
             // Redirigir al dashboard único
-            window.location.href = "/dashboard";
+            window.location.href = "/dashboard"; //FUERZA IR A LA VISTA DASHBOARD
           
         } else {
           mensaje.style.color = "red";
           mensaje.textContent = data.mensaje;
+           
         }
       } catch (error) {
         console.error("Error en login:", error);
