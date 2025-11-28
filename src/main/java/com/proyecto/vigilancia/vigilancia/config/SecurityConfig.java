@@ -22,19 +22,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-    .csrf(csrf -> csrf.disable())
-    .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/api/login", "/dashboard","/camaras", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-        .anyRequest().authenticated()
-    )
-    .formLogin(form -> form
-        .loginPage("/login")       //página de login
-        .permitAll()
-    )
-    .logout(logout -> logout
-        .logoutUrl("/logout")
-        .permitAll()
-    );
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                // ✅ PERMITIR TODAS las APIs y páginas - dejar que el interceptor maneje la auth
+                .requestMatchers("/**").permitAll()  // 🔥 ESTA ES LA CLAVE
+                
+                // ❌ ELIMINAR cualquier .anyRequest().authenticated()
+            )
+            // 🔥 DESHABILITAR el formLogin de Spring Security
+            .formLogin(form -> form.disable())
+            // 🔥 DESHABILITAR el logout de Spring Security  
+            .logout(logout -> logout.disable())
+            // 🔥 DESHABILITAR autenticación básica
+            .httpBasic(httpBasic -> httpBasic.disable());
+        
         return http.build();
     }
 
@@ -43,7 +44,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Aquí ya no devolvemos null, usamos tu servicio real
     @Bean
     public UserDetailsService userDetailsService() {
         return usuarioDetailsService;

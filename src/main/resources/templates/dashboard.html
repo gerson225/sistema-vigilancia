@@ -85,7 +85,21 @@
     <a href="/personas">Personas</a>
     <a href="/detecciones">Detecciones</a>
     <a href="/configuracion">Configuración</a>
+    <!-- Agregar logout -->
+    <a href="#" onclick="logout()" style="margin-top: auto; color: #e74c3c;">Cerrar Sesión</a>
   </div>
+  <script>
+async function logout() {
+    try {
+        await fetch("/api/logout", { method: "POST" });
+        sessionStorage.clear();
+        window.location.href = "/login";
+    } catch (error) {
+        console.error("Error en logout:", error);
+        window.location.href = "/login";
+    }
+}
+</script>
 
   <!-- Contenido principal -->
   <div class="main-content">
@@ -132,7 +146,7 @@
       <p>Funciones limitadas: monitoreo en tiempo real, alertas básicas.</p>
     </div>
   </div>
-
+  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -268,6 +282,16 @@
       document.getElementById("operador-section").style.display = "block";
     }
       
+    // Agrega esto al final de tu dashboard.html
+console.log("Dashboard cargado - Verificando sesión:");
+console.log("Rol en sessionStorage:", sessionStorage.getItem("rol"));
+console.log("Usuario en sessionStorage:", sessionStorage.getItem("usuario"));
+
+// Verificar sesión en el servidor
+fetch("/api/check-session")
+    .then(response => response.json())
+    .then(data => console.log("Sesión del servidor:", data))
+    .catch(error => console.error("Error verificando sesión:", error));
   });
 </script>
 </body>
