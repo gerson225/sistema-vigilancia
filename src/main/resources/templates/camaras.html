@@ -2,16 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Camaras</title>
+  <title>Monitoreo de Cámaras - SIVI</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f8;
-      display: flex; /* coloca sidebar y contenido en fila */
+      background: #1a1a1a;
+      color: white;
+      display: flex;
       height: 100vh;
     }
-    /* Sidebar */
+    
     .sidebar {
       width: 220px;
       background-color: #2c3e50;
@@ -20,10 +21,12 @@
       flex-direction: column;
       padding: 20px 0;
     }
+    
     .sidebar h2 {
       text-align: center;
       margin-bottom: 30px;
     }
+    
     .sidebar a {
       color: white;
       text-decoration: none;
@@ -31,56 +34,587 @@
       display: block;
       transition: background 0.3s;
     }
+    
     .sidebar a:hover {
       background-color: #34495e;
     }
-    /* Contenido principal */
+    
     .main-content {
       flex: 1;
       padding: 20px;
       overflow-y: auto;
     }
+    
     h1 {
+      color: white;
+      margin-bottom: 20px;
       text-align: center;
-      color: #2c3e50;
     }
-    .dashboard-grid {
+    
+    /* Grid de cámaras en mosaico */
+    .cameras-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       gap: 20px;
+      margin-bottom: 20px;
     }
-    .card {
-      border: 1px solid #ccc;
-      border-radius: 8px;
+    
+    .camera-card {
+      background: #2c3e50;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
+    }
+    
+    .camera-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .camera-header {
+      padding: 15px;
+      background: #34495e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .camera-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    
+    .camera-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    
+    .status-online { background-color: #2ecc71; }
+    .status-offline { background-color: #e74c3c; }
+    .status-recording { background-color: #3498db; }
+    
+    .camera-video {
+      width: 100%;
+      height: 250px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 14px;
+      position: relative;
+    }
+    
+    .video-placeholder {
+      text-align: center;
+    }
+    
+    .camera-actions {
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s;
+    }
+    
+    .btn-alert { background: #e74c3c; color: white; }
+    .btn-toggle { background: #f39c12; color: white; }
+    .btn-config { background: #3498db; color: white; }
+    .btn-fullscreen { background: #27ae60; color: white; }
+    
+    .btn:hover {
+      opacity: 0.9;
+    }
+    
+    /* Modal de configuración */
+    .config-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2c3e50;
       padding: 20px;
-      margin: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      background: white;
-      flex: 1 1 400px;
+      border-radius: 10px;
+      z-index: 1000;
+      min-width: 300px;
     }
-    canvas {
-      max-width: 100%;
-      height: 300px;
-      margin: 20px auto;
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 999;
+    }
+    
+    .config-option {
+      margin: 10px 0;
+    }
+    
+    .config-option label {
       display: block;
+      margin-bottom: 5px;
+      color: white;
+    }
+    
+    .config-option input, .config-option select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #34495e;
+      background: #1a252f;
+      color: white;
+    }
+    
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      background: #34495e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #3498db;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #bdc3c7;
     }
   </style>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-    <h2>SIVI</h2>
-    <a href="/dashboard">Dashboard</a>
-    <a href="/alertas">Alertas</a>
-    <a href="/camaras">Cámaras</a>
-    <a href="/personas">Personas</a>
-    <a href="/detecciones">Detecciones</a>
-    <a href="/configuracion">Configuración</a>
-  </div>
+      <h2>SIVI</h2>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/alertas">Alertas</a>
+      <a href="/camaras">Cámaras</a>
+      <a href="/personas">Personas</a>
+      <a href="/detecciones">Detecciones</a>
+      <a href="/configuracion">Configuración</a>
+    </div>
 
-  <!-- Contenido de Alerta -->
-   <div class="main-content">
-  <h1>Panel de Camaras</h1>
-  <p>Aquí irán las gráficas y tablas de alertas recientes.</p>
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <h1>📹 Monitoreo de Cámaras en Tiempo Real</h1>
+      
+      <!-- Barra de estadísticas -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-number" id="totalCamaras">0</div>
+          <div class="stat-label">Total Cámaras</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="camarasActivas">0</div>
+          <div class="stat-label">Cámaras Activas</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="camarasOnline">0</div>
+          <div class="stat-label">En Línea</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="alertasHoy">0</div>
+          <div class="stat-label">Alertas Hoy</div>
+        </div>
+      </div>
+      
+      <!-- Grid de cámaras -->
+      <div class="cameras-grid" id="camerasGrid">
+        <!-- Las cámaras se cargarán dinámicamente -->
+      </div>
+    </div>
+
+    <!-- Modal de configuración -->
+    <div class="modal-overlay" id="configOverlay" onclick="cerrarConfig()"></div>
+    <div class="config-modal" id="configModal">
+      <h3>⚙️ Configuración de Cámara</h3>
+      <div class="config-option">
+        <label>Nombre de la cámara:</label>
+        <input type="text" id="configNombre" placeholder="Ej: Entrada Principal">
+      </div>
+      <div class="config-option">
+        <label>Ubicación:</label>
+        <input type="text" id="configUbicacion" placeholder="Ej: Recepción">
+      </div>
+      <div class="config-option">
+        <label>Dirección IP:</label>
+        <input type="text" id="configIp" placeholder="192.168.1.100">
+      </div>
+      <div class="config-option">
+        <label>Detección automática:</label>
+        <select id="configDeteccion">
+          <option value="true">Activada</option>
+          <option value="false">Desactivada</option>
+        </select>
+      </div>
+      <div class="config-option">
+        <label>Rotación:</label>
+        <select id="configRotacion">
+          <option value="0">0°</option>
+          <option value="90">90°</option>
+          <option value="180">180°</option>
+          <option value="270">270°</option>
+        </select>
+      </div>
+      <div class="config-option">
+        <label>Zoom:</label>
+        <input type="range" id="configZoom" min="1" max="5" step="0.1" value="1">
+        <span id="zoomValue">1x</span>
+      </div>
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button class="btn btn-success" onclick="guardarConfig()">💾 Guardar</button>
+        <button class="btn btn-alert" onclick="cerrarConfig()">❌ Cancelar</button>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      let estadoCamaras = {};
+      let camaraConfigActual = null;
+      
+      // Cargar cámaras al iniciar
+      document.addEventListener('DOMContentLoaded', function() {
+        cargarCamaras();
+        
+        // Actualizar valor del zoom
+        document.getElementById('configZoom').addEventListener('input', function() {
+          document.getElementById('zoomValue').textContent = this.value + 'x';
+        });
+      });
+      
+      // Función para cargar cámaras desde el backend
+      async function cargarCamaras() {
+        try {
+          const response = await fetch('/api/camaras');
+          if (response.ok) {
+            const camaras = await response.json();
+            camaras.forEach(camara => {
+                estadoCamaras[camara.idCamara] = {
+                    activa: camara.estado === 'ACTIVA',
+                    online: camara.online || true
+                };
+            });
+            actualizarGridCamaras(camaras);
+            actualizarEstadisticas(camaras);
+          } else {
+            // Si no hay API, usar datos de prueba
+            cargarCamarasPrueba();
+          }
+        } catch (error) {
+          console.error('Error cargando cámaras:', error);
+          cargarCamarasPrueba();
+        }
+      }
+      
+      // Función de respaldo con datos de prueba
+      function cargarCamarasPrueba() {
+        const camaras = [
+          { 
+            idCamara: 7, 
+            nombreCamara: 'Camara Plaza Norte', 
+            estado: 'ACTIVA', 
+            ubicacion: 'Entrada principal', 
+            direccionIp: '192.168.1.100',
+            online: true,
+            deteccionAutomatica: true
+          },
+          { 
+            idCamara: 8,
+            nombreCamara: 'Camara San Juan', 
+            estado: 'INACTIVA', 
+            ubicacion: 'Pasillo 1', 
+            direccionIp: '192.168.1.101',
+            online: false,
+            deteccionAutomatica: false
+          },
+          { 
+            idCamara: 9, 
+            nombreCamara: 'Camara Miraflores', 
+            estado: 'ACTIVA', 
+            ubicacion: 'Estacionamiento', 
+            direccionIp: '192.168.1.102',
+            online: true,
+            deteccionAutomatica: true
+          },
+          { 
+            idCamara: 10, 
+            nombreCamara: 'Camara Callao', 
+            estado: 'ACTIVA', 
+            ubicacion: 'Recepción', 
+            direccionIp: '192.168.1.103',
+            online: true,
+            deteccionAutomatica: true
+          },
+          { 
+            idCamara: 11, 
+            nombreCamara: 'Camara Villa El Salvador', 
+            estado: 'INACTIVA', 
+            ubicacion: 'Sala de servidores', 
+            direccionIp: '192.168.1.104',
+            online: true,
+            deteccionAutomatica: false
+          },
+          { 
+            idCamara: 12, 
+            nombreCamara: 'Camara Ate', 
+            estado: 'ACTIVA', 
+            ubicacion: 'Terraza', 
+            direccionIp: '192.168.1.105',
+            online: true,
+            deteccionAutomatica: true
+          }
+        ];
+
+      camaras.forEach(camara => {
+        estadoCamaras[camara.idCamara] = {
+            activa: camara.estado === 'ACTIVA',
+            online: camara.online,
+            deteccionAutomatica: camara.deteccionAutomatica
+        };
+    });
+        
+        actualizarGridCamaras(camaras);
+        actualizarEstadisticas(camaras);
+      }
+      
+      // Función para actualizar el grid de cámaras
+      function actualizarGridCamaras(camaras) {
+    const grid = document.getElementById('camerasGrid');
+    grid.innerHTML = '';
+    
+    camaras.forEach(camara => {
+        const estado = estadoCamaras[camara.idCamara];
+        const isActive = estado.activa;
+        const isOnline = estado.online;
+        const tieneDeteccion = estado.deteccionAutomatica;
+        
+        const cameraCard = `
+            <div class="camera-card" id="camera-${camara.idCamara}">
+                <div class="camera-header">
+                    <div class="camera-name">${camara.nombreCamara}</div>
+                    <div class="camera-status">
+                        <div class="status-dot ${isOnline ? 'status-online' : 'status-offline'}"></div>
+                        <span>${isOnline ? 'En línea' : 'Desconectada'}</span>
+                        ${isActive ? '<div class="status-dot status-recording" style="margin-left: 5px;" title="Grabando"></div>' : ''}
+                        ${tieneDeteccion ? '<div class="status-dot" style="margin-left: 5px; background-color: #9b59b6;" title="Detección automática activa">🔍</div>' : ''}
+                    </div>
+                </div>
+                
+                <div class="camera-video">
+                    <div class="video-placeholder">
+                        <div style="font-size: 48px;">📹</div>
+                        <div>${camara.ubicacion}</div>
+                        <div style="font-size: 12px; color: #95a5a6;">${camara.direccionIp}</div>
+                        ${!isOnline ? '<div style="color: #e74c3c; margin-top: 5px;">⛔ Cámara desconectada</div>' : ''}
+                        ${!isActive ? '<div style="color: #f39c12; margin-top: 5px;">⏸️ Cámara pausada</div>' : ''}
+                        ${isActive && isOnline ? '<div style="color: #2ecc71; margin-top: 5px;">● Grabando</div>' : ''}
+                        ${tieneDeteccion ? '<div style="color: #9b59b6; margin-top: 5px;">🔍 Detección automática</div>' : '<div style="color: #e74c3c; margin-top: 5px;">🔴 Detección desactivada</div>'}
+                    </div>
+                </div>
+                
+                <div class="camera-actions">
+                    <button class="btn btn-alert" onclick="generarAlertaCamara(${camara.idCamara})">🚨 Alerta</button>
+                    <button class="btn btn-toggle" onclick="toggleCamara(${camara.idCamara})">
+                        ${isActive ? '⏸️ Pausar' : '▶️ Activar'}
+                    </button>
+                    <button class="btn btn-config" onclick="abrirConfig(${camara.idCamara}, '${camara.nombreCamara}', '${camara.ubicacion}', '${camara.direccionIp}', ${tieneDeteccion})">⚙️ Config</button>
+                    <button class="btn btn-fullscreen" onclick="pantallaCompleta(${camara.idCamara})">📺 Pantalla completa</button>
+                </div>
+            </div>
+        `;
+        grid.innerHTML += cameraCard;
+        });
+      }
+      
+      // Función para actualizar estadísticas
+      function actualizarEstadisticas(camaras) {
+        const totalCamaras = camaras.length;
+        const camarasActivas = camaras.filter(c => c.estado === 'ACTIVA').length;
+        const camarasOnline = camaras.filter(c => c.online).length;
+        
+        document.getElementById('totalCamaras').textContent = totalCamaras;
+        document.getElementById('camarasActivas').textContent = camarasActivas;
+        document.getElementById('camarasOnline').textContent = camarasOnline;
+        document.getElementById('alertasHoy').textContent = '0'; // Por ahora
+      }
+      
+      // Funciones de acciones
+      function generarAlertaCamara(idCamara) {
+        const estado = estadoCamaras[idCamara];
+        if (!estado.online) {
+        alert('❌ No se puede generar alerta: Cámara desconectada');
+        return;
+      }
+        if (!estado.activa) {
+        alert('❌ No se puede generar alerta: Cámara pausada');
+        return;
+      }
+    
+    alert(`🚨 Generando alerta para cámara ${idCamara}`);
+    // Aquí integrarías con tu sistema de alertas
+      }
+      
+    async function toggleCamara(idCamara) {
+    const estado = estadoCamaras[idCamara];
+    
+    if (!estado.online) {
+        alert('❌ No se puede cambiar estado: Cámara desconectada');
+        return;
+    }
+    
+    // Cambiar estado localmente
+    estado.activa = !estado.activa;
+    
+    // Actualizar la interfaz
+    const boton = document.querySelector(`#camera-${idCamara} .btn-toggle`);
+    const estadoTexto = document.querySelector(`#camera-${idCamara} .video-placeholder`);
+    
+    if (boton) {
+        boton.textContent = estado.activa ? '⏸️ Pausar' : '▶️ Activar';
+    }
+    
+    if (estadoTexto) {
+        // Actualizar mensajes de estado
+        const mensajes = estadoTexto.innerHTML;
+        if (estado.activa) {
+            estadoTexto.innerHTML = mensajes.replace('⏸️ Cámara pausada', '● Grabando')
+                                           .replace('⛔ Cámara desconectada', '') + '<div style="color: #2ecc71; margin-top: 5px;">● Grabando</div>';
+        } else {
+            estadoTexto.innerHTML = mensajes.replace('● Grabando', '⏸️ Cámara pausada')
+                                           .replace(/<div style="color: #2ecc71; margin-top: 5px;">● Grabando<\/div>/, '')
+                                           .replace('⛔ Cámara desconectada', '') + '<div style="color: #f39c12; margin-top: 5px;">⏸️ Cámara pausada</div>';
+        }
+    }
+    
+    // Actualizar punto de grabación
+    const cameraCard = document.getElementById(`camera-${idCamara}`);
+    const statusContainer = cameraCard.querySelector('.camera-status');
+    
+    if (estado.activa) {
+        if (!statusContainer.querySelector('.status-recording')) {
+            const recordingDot = document.createElement('div');
+            recordingDot.className = 'status-dot status-recording';
+            recordingDot.style.marginLeft = '5px';
+            recordingDot.title = 'Grabando';
+            statusContainer.appendChild(recordingDot);
+        }
+    } else {
+        const recordingDot = statusContainer.querySelector('.status-recording');
+        if (recordingDot) {
+            recordingDot.remove();
+        }
+    }
+    
+    alert(`✅ Cámara ${idCamara} ${estado.activa ? 'activada' : 'pausada'}`);
+    
+    // Aquí enviarías el cambio al backend
+    try {
+        await fetch(`/api/camaras/${idCamara}/toggle`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        console.error('Error actualizando estado de cámara:', error);
+    }
+}
+      
+      function abrirConfig(idCamara, nombre, ubicacion, ip) {
+        camaraConfigActual = idCamara;
+        document.getElementById('configNombre').value = nombre;
+        document.getElementById('configUbicacion').value = ubicacion;
+        document.getElementById('configIp').value = ip;
+        
+        document.getElementById('configOverlay').style.display = 'block';
+        document.getElementById('configModal').style.display = 'block';
+      }
+      
+      function cerrarConfig() {
+        document.getElementById('configOverlay').style.display = 'none';
+        document.getElementById('configModal').style.display = 'none';
+        camaraConfigActual = null;
+      }
+      
+      function guardarConfig() {
+        if (camaraConfigActual) {
+          const nombre = document.getElementById('configNombre').value;
+          const ubicacion = document.getElementById('configUbicacion').value;
+          const ip = document.getElementById('configIp').value;
+          const deteccion = document.getElementById('configDeteccion').value;
+          const rotacion = document.getElementById('configRotacion').value;
+          const zoom = document.getElementById('configZoom').value;
+          
+          if (estadoCamaras[camaraConfigActual]) {
+            estadoCamaras[camaraConfigActual].deteccionAutomatica = deteccion;
+        }
+
+          alert(`✅ Configuración guardada para cámara ${camaraConfigActual}\nNombre: ${nombre}\nUbicación: ${ubicacion}\nIP: ${ip}\nDetección: ${deteccion ? 'Activada' : 'Desactivada'}\nRotación: ${rotacion}°\nZoom: ${zoom}x`);
+          
+          cargarCamaras();
+          cerrarConfig();
+        }
+      }
+      
+    function pantallaCompleta(idCamara) {
+    const estado = estadoCamaras[idCamara];
+    
+    if (!estado.online) {
+        alert('❌ No se puede activar pantalla completa: Cámara desconectada');
+        return;
+    }
+    
+    const cameraCard = document.getElementById(`camera-${idCamara}`);
+    const videoSection = cameraCard.querySelector('.camera-video');
+    
+    if (videoSection.requestFullscreen) {
+        videoSection.requestFullscreen();
+    } else if (videoSection.webkitRequestFullscreen) {
+        videoSection.webkitRequestFullscreen();
+    } else if (videoSection.msRequestFullscreen) {
+        videoSection.msRequestFullscreen();
+    } else {
+        alert(`📺 Simulando pantalla completa para cámara ${idCamara}\n\nEn una implementación real, esto activaría el modo pantalla completa del stream de video.`);
+    }
+    
+    // Agregar estilo para pantalla completa
+    videoSection.style.cursor = 'pointer';
+    videoSection.onclick = function() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+      };
+      }
+    </script>
 </body>
 </html>

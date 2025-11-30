@@ -5,16 +5,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PanelController {
 
-    /*@GetMapping("/alertas")
+    /* @GetMapping("/alertas")
     public String alertas() {
         return "alertas"; // busca alertas.html en templates
     }
     */
-    @GetMapping("/camaras")
+    /* @GetMapping("/camaras")
     public String camaras() {
         return "camaras"; // busca camaras.html en templates
     }
-
+    */
     @GetMapping("/personas")
     public String personas() {
         return "personas"; // busca personas.html en templates
