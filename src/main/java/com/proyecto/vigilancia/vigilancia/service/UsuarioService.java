@@ -104,4 +104,7 @@ public class UsuarioService {
             }
         }
     }
+    public Optional<Usuario> buscarPorId(Integer idUsuario) {
+    return usuarioRepository.findById(idUsuario);
+}
 }

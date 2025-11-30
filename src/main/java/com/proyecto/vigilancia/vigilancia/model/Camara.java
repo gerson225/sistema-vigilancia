@@ -1,5 +1,7 @@
 package com.proyecto.vigilancia.vigilancia.model;
 
+import com.proyecto.vigilancia.vigilancia.entity.Usuario;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,8 +29,8 @@ public class Camara {
     @Column(name = "estado")
     private EstadoCamara estado;
 
-
-    @Column(name = "id_usuario")
-    private Integer idUsuario;
+    @ManyToOne
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario")
+    private Usuario usuario;
 
 }

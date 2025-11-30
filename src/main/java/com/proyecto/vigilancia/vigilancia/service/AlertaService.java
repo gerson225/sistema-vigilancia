@@ -1,5 +1,6 @@
 package com.proyecto.vigilancia.vigilancia.service;
 
+import com.proyecto.vigilancia.vigilancia.entity.Usuario;
 import com.proyecto.vigilancia.vigilancia.model.Alerta;
 import com.proyecto.vigilancia.vigilancia.repository.AlertaRepository;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AlertaService {
@@ -58,4 +60,57 @@ public class AlertaService {
 
         return resultado;
     }
+
+    public List<Alerta> obtenerTodasLasAlertas() {
+    return alertaRepository.findAll();
+    }
+
+    public Alerta buscarPorId(Integer idAlerta) {
+        return alertaRepository.findById(idAlerta)
+            .orElseThrow(() -> new RuntimeException("Alerta no encontrada"));
+    }
+    
+    // Método para asignar responsable a una alerta
+    public Alerta asignarResponsable(Integer idAlerta, Usuario responsable) {
+        Alerta alerta = alertaRepository.findById(idAlerta)
+            .orElseThrow(() -> new RuntimeException("Alerta no encontrada"));
+    
+    alerta.setUsuarioResponsable(responsable);
+    alerta.setEstadoAlerta("EN_PROCESO");
+    
+    return alertaRepository.save(alerta);
+}
+
+// Método para resolver alerta
+    public Alerta resolverAlerta(Integer idAlerta, String accionesTomadas) {
+        Alerta alerta = alertaRepository.findById(idAlerta)
+            .orElseThrow(() -> new RuntimeException("Alerta no encontrada"));
+    
+    alerta.setEstadoAlerta("RESUELTA");
+    alerta.setAccionesTomadas(accionesTomadas);
+    alerta.setFechaResolucion(LocalDateTime.now());
+    
+    return alertaRepository.save(alerta);
+}
+
+// Método para filtrar alertas
+public List<Alerta> filtrarAlertas(String estado, String nivelCriticidad) {
+    List<Alerta> todasAlertas = obtenerTodasLasAlertas();
+    
+    return todasAlertas.stream()
+        .filter(alerta -> filtrarPorEstado(alerta, estado))
+        .filter(alerta -> filtrarPorCriticidad(alerta, nivelCriticidad))
+        .collect(Collectors.toList());
+}
+
+private boolean filtrarPorEstado(Alerta alerta, String estado) {
+    if (estado == null || estado.isEmpty()) return true;
+    return estado.equals(alerta.getEstadoAlerta());
+}
+
+private boolean filtrarPorCriticidad(Alerta alerta, String nivelCriticidad) {
+    if (nivelCriticidad == null || nivelCriticidad.isEmpty()) return true;
+    return nivelCriticidad.equals(alerta.getNivelCriticidad());
+}
+
 }

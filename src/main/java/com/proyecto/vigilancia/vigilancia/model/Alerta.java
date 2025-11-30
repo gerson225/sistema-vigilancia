@@ -39,4 +39,21 @@ public class Alerta {
     @NotNull
     @Column(name = "fecha_alerta")
     private LocalDateTime fechaAlerta; 
+
+    // 🔥 NUEVOS CAMPOS PARA MEJORAR EL SISTEMA
+    @Column(name = "nivel_criticidad")
+    private String nivelCriticidad; // BAJA, MEDIA, ALTA, CRITICA
+
+    @Column(name = "estado_alerta")
+    private String estadoAlerta; // PENDIENTE, EN_PROCESO, RESUELTA, DESCARTADA
+
+    @Column(name = "acciones_tomadas")
+    private String accionesTomadas;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario_responsable")
+    private Usuario usuarioResponsable;
+
+    @Column(name = "fecha_resolucion")
+    private LocalDateTime fechaResolucion;
 }

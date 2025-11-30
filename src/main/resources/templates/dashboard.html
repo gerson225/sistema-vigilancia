@@ -211,8 +211,36 @@ async function logout() {
     console.error("Error cámaras:", err);
   }
 }
-    actualizarAlertas();
-    setInterval(actualizarAlertas, 10000);
+    // Función para actualizar alertas (que falta en tu código)
+async function actualizarAlertas() {
+  try {
+    const res = await fetch("/api/alertas/recientes");
+    const data = await res.json();
+    console.log("Datos de alertas recibidos:", data); // 👈 Para debug
+    
+    // Convertir los datos a números y en el orden correcto
+    const valores = [
+      data.lunes || 0,
+      data.martes || 0, 
+      data.miercoles || 0,
+      data.jueves || 0,
+      data.viernes || 0
+    ];
+    
+    console.log("Valores para el gráfico:", valores); // 👈 Para debug
+    
+    // Actualizar el gráfico
+    alertasChart.data.datasets[0].data = valores;
+    alertasChart.update();
+    
+  } catch (err) {
+    console.error("Error actualizando alertas:", err);
+  }
+}
+
+// Ahora sí puedes llamar a la función
+actualizarAlertas();
+setInterval(actualizarAlertas, 10000);
 
     // Detecciones (line) — corrige la ruta
     const deteccionesCtx = document.getElementById('deteccionesChart');

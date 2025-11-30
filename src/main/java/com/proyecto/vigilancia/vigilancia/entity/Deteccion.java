@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import com.proyecto.vigilancia.vigilancia.model.Camara;
+import com.proyecto.vigilancia.vigilancia.model.EstadoCamara;
+
 @Getter
 @Setter
 @Entity
@@ -20,6 +23,10 @@ public class Deteccion {
     @ManyToOne
     @JoinColumn(name = "id_persona", referencedColumnName = "id_persona")
     private Persona persona;
+
+    @ManyToOne
+    @JoinColumn(name = "id_camara", referencedColumnName = "id_camara")
+    private Camara camara;
 
     @Column(name = "fecha_hora")
     private LocalDateTime fechaHora;
