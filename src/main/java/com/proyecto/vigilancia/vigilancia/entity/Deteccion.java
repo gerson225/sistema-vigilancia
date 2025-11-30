@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.proyecto.vigilancia.vigilancia.model.Camara;
 import com.proyecto.vigilancia.vigilancia.model.EstadoCamara;
@@ -20,11 +24,12 @@ public class Deteccion {
     @Column(name = "id_deteccion")
     private Integer idDeteccion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_persona", referencedColumnName = "id_persona")
+    @JsonIgnore
     private Persona persona;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_camara", referencedColumnName = "id_camara")
     private Camara camara;
 

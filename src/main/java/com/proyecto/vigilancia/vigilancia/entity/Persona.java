@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
@@ -31,4 +34,19 @@ public class Persona {
 
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_persona")
+    private TipoPersona tipoPersona;
+
+    @Column(name = "ultima_deteccion")
+    private LocalDateTime ultimaDeteccion;
+
+    @Column(name = "estado")
+    private String estado; // ACTIVO, INACTIVO
+
+    // Relación con detecciones
+    @OneToMany(mappedBy = "persona")
+    @JsonIgnore
+    private List<Deteccion> detecciones;
 }

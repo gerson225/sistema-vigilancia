@@ -15,11 +15,11 @@ public class PanelController {
         return "camaras"; // busca camaras.html en templates
     }
     */
-    @GetMapping("/personas")
+    /*@GetMapping("/personas")
     public String personas() {
         return "personas"; // busca personas.html en templates
     }
-
+    */
     @GetMapping("/detecciones")
     public String detecciones() {
         return "detecciones"; // busca detecciones.html en templates

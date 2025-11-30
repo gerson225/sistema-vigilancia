@@ -1,86 +1,594 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Panel de Personas</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f8;
-      display: flex; /* coloca sidebar y contenido en fila */
-      height: 100vh;
-    }
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      background-color: #2c3e50;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 0;
-    }
-    .sidebar h2 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      padding: 12px 20px;
-      display: block;
-      transition: background 0.3s;
-    }
-    .sidebar a:hover {
-      background-color: #34495e;
-    }
-    /* Contenido principal */
-    .main-content {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      background: white;
-      flex: 1 1 400px;
-    }
-    canvas {
-      max-width: 100%;
-      height: 300px;
-      margin: 20px auto;
-      display: block;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Gestión de Personas - SIVI</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+        
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: background 0.3s;
+        }
+        
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .badge-empleado { background: #27ae60; }
+        .badge-visitante { background: #3498db; }
+        .badge-sospechoso { background: #e74c3c; }
+        .badge-desconocido { background: #95a5a6; }
+        
+        .persona-foto {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+        
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filtros input, .filtros select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            z-index: 1000;
+            min-width: 500px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-    <h2>SIVI</h2>
-    <a href="/dashboard">Dashboard</a>
-    <a href="/alertas">Alertas</a>
-    <a href="/camaras">Cámaras</a>
-    <a href="/personas">Personas</a>
-    <a href="/detecciones">Detecciones</a>
-    <a href="/configuracion">Configuración</a>
-  </div>
+        <h2>SIVI</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/alertas">Alertas</a>
+        <a href="/camaras">Cámaras</a>
+        <a href="/vistas/personas">Personas</a>
+        <a href="/detecciones">Detecciones</a>
+        <a href="/configuracion">Configuración</a>
+    </div>
 
-  <!-- Contenido de Alerta -->
-   <div class="main-content">
-  <h1>Panel de Personas</h1>
-  <p>Aquí irán las gráficas y tablas de alertas recientes.</p>
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="header-actions">
+            <h1>👥 Gestión de Personas</h1>
+            <button class="btn btn-success" onclick="abrirModalRegistro()">➕ Nueva Persona</button>
+        </div>
+
+        <!-- Barra de estadísticas -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalPersonas">0</div>
+                <div class="stat-label">Total Personas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalEmpleados">0</div>
+                <div class="stat-label">Empleados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalVisitantes">0</div>
+                <div class="stat-label">Visitantes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalDesconocidos">0</div>
+                <div class="stat-label">Desconocidos</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros">
+            <input type="text" id="filtroNombre" placeholder="🔍 Buscar por nombre..." style="flex: 1;">
+            <input type="text" id="filtroDni" placeholder="🔢 Buscar por DNI...">
+            <select id="filtroTipo">
+                <option value="">Todos los tipos</option>
+                <option value="EMPLEADO">Empleados</option>
+                <option value="VISITANTE">Visitantes</option>
+                <option value="SOSPECHOSO">Sospechosos</option>
+                <option value="DESCONOCIDO">Desconocidos</option>
+            </select>
+            <button class="btn btn-primary" onclick="filtrarPersonas()">Filtrar</button>
+            <button class="btn" onclick="limpiarFiltros()">Limpiar</button>
+        </div>
+
+        <!-- Tabla de personas -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Foto</th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaPersonas">
+                <!-- Se llenará dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal de Registro/Edición -->
+    <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal()"></div>
+    <div class="modal" id="modalPersona">
+        <h2 id="modalTitulo">Registrar Nueva Persona</h2>
+        <form id="formPersona">
+            <div class="form-group">
+                <label for="modalNombre">Nombre completo *</label>
+                <input type="text" id="modalNombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalDni">DNI *</label>
+                <input type="text" id="modalDni" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalTipo">Tipo de persona *</label>
+                <select id="modalTipo" required>
+                    <option value="">Seleccionar tipo</option>
+                    <option value="EMPLEADO">Empleado</option>
+                    <option value="VISITANTE">Visitante</option>
+                    <option value="SOSPECHOSO">Sospechoso</option>
+                    <option value="DESCONOCIDO">Desconocido</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalDescripcion">Descripción/Observaciones</label>
+                <textarea id="modalDescripcion" placeholder="Información adicional sobre la persona..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalFoto">URL de la foto</label>
+                <input type="text" id="modalFoto" placeholder="https://ejemplo.com/foto.jpg">
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="guardarPersona()">💾 Guardar</button>
+                <button type="button" class="btn btn-danger" onclick="cerrarModal()">❌ Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        let personaEditando = null;
+        
+        // Cargar personas al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarPersonas();
+        });
+
+        // Función para cargar personas
+        async function cargarPersonas() {
+    try {
+        const response = await fetch('/api/personas');
+        if (response.ok) {
+            const personas = await response.json();
+            console.log('✅ Personas cargadas:', personas); // Para debug
+            actualizarTablaPersonas(personas);
+            actualizarEstadisticas(personas);
+        } else {
+            console.log('❌ API no disponible, usando datos de prueba');
+            // Datos de prueba si no hay API
+            cargarPersonasPrueba();
+        }
+    } catch (error) {
+        console.error('Error cargando personas:', error);
+        // 🔥 SI HAY ERROR, USAR DATOS DE PRUEBA DIRECTAMENTE
+        cargarPersonasPrueba();
+    }
+}
+
+        // Función de respaldo con datos de prueba
+        function cargarPersonasPrueba() {
+            const personas = [
+                {
+                    idPersona: 1,
+                    nombre: "Luis Perez",
+                    dni: "12345678",
+                    foto: "/images/persona1.png",
+                    tipoPersona: "EMPLEADO",
+                    descripcion: "Personal administrativo - Área de contabilidad",
+                    fechaRegistro: "2024-01-15T10:00:00"
+                },
+                {
+                    idPersona: 2,
+                    nombre: "Carlos Ramirez", 
+                    dni: "87654321",
+                    foto: "/images/persona2.png",
+                    tipoPersona: "VISITANTE",
+                    descripcion: "Proveedor externo - Entrega de suministros",
+                    fechaRegistro: "2024-02-20T14:30:00"
+                },
+                {
+                    idPersona: 3,
+                    nombre: "Persona No Identificada",
+                    dni: "DESCONOCIDO",
+                    foto: "/images/persona3.png",
+                    tipoPersona: "DESCONOCIDO",
+                    descripcion: "Rostro no reconocido en múltiples detecciones",
+                    fechaRegistro: "2024-11-18T11:00:00"
+                },
+                {
+                    idPersona: 4,
+                    nombre: "Ana Gutierrez",
+                    dni: "11223344",
+                    foto: "/images/user-default.png",
+                    tipoPersona: "EMPLEADO", 
+                    descripcion: "Supervisora de seguridad",
+                    fechaRegistro: "2024-03-10T09:15:00"
+                }
+            ];
+            
+            actualizarTablaPersonas(personas);
+            actualizarEstadisticas(personas);
+        }
+
+        // Función para actualizar la tabla
+        function actualizarTablaPersonas(personas) {
+            const tbody = document.getElementById('tablaPersonas');
+            tbody.innerHTML = '';
+
+            personas.forEach(persona => {
+                const row = `
+                    <tr>
+                        <td>${persona.idPersona}</td>
+                        <td>
+                            <img src="${persona.foto || '/images/persona1.png'}"  
+                                 alt="Foto" 
+                                 class="persona-foto"
+                                 onerror="this.src='/images/persona1.png'">
+                        </td>
+                        <td><strong>${persona.nombre}</strong></td>
+                        <td>${persona.dni}</td>
+                        <td>
+                            <span class="badge badge-${persona.tipoPersona ? persona.tipoPersona.toLowerCase() : 'desconocido'}">
+                                ${persona.tipoPersona || 'DESCONOCIDO'}
+                            </span>
+                        </td>
+                        <td>${persona.descripcion || 'Sin descripción'}</td>
+                        <td>${new Date(persona.fechaRegistro).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-info" onclick="verHistorial(${persona.idPersona})">📊 Historial</button>
+                            <button class="btn btn-warning" onclick="editarPersona(${persona.idPersona})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="eliminarPersona(${persona.idPersona})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Función para actualizar estadísticas
+        function actualizarEstadisticas(personas) {
+            document.getElementById('totalPersonas').textContent = personas.length;
+            document.getElementById('totalEmpleados').textContent = 
+                personas.filter(p => p.tipoPersona === 'EMPLEADO').length;
+            document.getElementById('totalVisitantes').textContent = 
+                personas.filter(p => p.tipoPersona === 'VISITANTE').length;
+            document.getElementById('totalDesconocidos').textContent = 
+                personas.filter(p => p.tipoPersona === 'DESCONOCIDO').length;
+        }
+
+        // Funciones del modal
+        function abrirModalRegistro() {
+            personaEditando = null;
+            document.getElementById('modalTitulo').textContent = '➕ Registrar Nueva Persona';
+            document.getElementById('formPersona').reset();
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('modalPersona').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('modalPersona').style.display = 'none';
+            personaEditando = null;
+        }
+
+        async function editarPersona(idPersona) {
+            try {
+                const response = await fetch(`/api/personas/${idPersona}`);
+                if (response.ok) {
+                    const persona = await response.json();
+                    personaEditando = persona;
+                    
+                    document.getElementById('modalTitulo').textContent = '✏️ Editar Persona';
+                    document.getElementById('modalNombre').value = persona.nombre;
+                    document.getElementById('modalDni').value = persona.dni;
+                    document.getElementById('modalTipo').value = persona.tipoPersona || 'DESCONOCIDO';
+                    document.getElementById('modalDescripcion').value = persona.descripcion || '';
+                    document.getElementById('modalFoto').value = persona.foto || '';
+                    
+                    document.getElementById('modalOverlay').style.display = 'block';
+                    document.getElementById('modalPersona').style.display = 'block';
+                } else {
+                    alert('Error al cargar los datos de la persona');
+                }
+            } catch (error) {
+                console.error('Error editando persona:', error);
+                alert('Error al cargar los datos de la persona');
+            }
+        }
+
+        async function guardarPersona() {
+            const formData = {
+                nombre: document.getElementById('modalNombre').value,
+                dni: document.getElementById('modalDni').value,
+                tipoPersona: document.getElementById('modalTipo').value,
+                descripcion: document.getElementById('modalDescripcion').value,
+                foto: document.getElementById('modalFoto').value
+            };
+
+            if (!formData.nombre || !formData.dni || !formData.tipoPersona) {
+                alert('Por favor complete todos los campos obligatorios (*)');
+                return;
+            }
+
+            try {
+                const url = personaEditando ? `/api/personas/${personaEditando.idPersona}` : '/api/personas';
+                const method = personaEditando ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert(`✅ Persona ${personaEditando ? 'actualizada' : 'registrada'} correctamente`);
+                    cerrarModal();
+                    cargarPersonas();
+                } else {
+                    alert('Error al guardar la persona');
+                }
+            } catch (error) {
+                console.error('Error guardando persona:', error);
+                alert('Error al guardar la persona');
+            }
+        }
+
+        async function eliminarPersona(idPersona) {
+            if (confirm('¿Estás seguro de eliminar esta persona? Esta acción no se puede deshacer.')) {
+                try {
+                    const response = await fetch(`/api/personas/${idPersona}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Persona eliminada correctamente');
+                        cargarPersonas();
+                    } else {
+                        alert('Error al eliminar la persona');
+                    }
+                } catch (error) {
+                    console.error('Error eliminando persona:', error);
+                    alert('Error al eliminar la persona');
+                }
+            }
+        }
+
+        function verHistorial(idPersona) {
+            alert(`📊 Mostrando historial de detecciones para persona ${idPersona}\n\nEsta función mostraría todas las detecciones asociadas a esta persona.`);
+            // En una implementación completa, esto navegaría a una página de historial
+            // o abriría un modal con la lista de detecciones
+        }
+
+        function filtrarPersonas() {
+            alert('🔍 Filtrado de personas - Por implementar completamente');
+            // Implementación básica por ahora
+            cargarPersonas();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filtroNombre').value = '';
+            document.getElementById('filtroDni').value = '';
+            document.getElementById('filtroTipo').value = '';
+            cargarPersonas();
+        }
+    </script>
 </body>
 </html>

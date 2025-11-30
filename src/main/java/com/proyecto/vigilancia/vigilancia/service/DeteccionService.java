@@ -20,12 +20,21 @@ public class DeteccionService {
  public List<Deteccion> listarDetecciones() {
     List<Deteccion> detecciones = repo.findAll();
     
+    // 🔥 AGREGAR DEBUG CRÍTICO
+    System.out.println("🔍 Número de detecciones en BD: " + detecciones.size());
+    
+    for (int i = 0; i < detecciones.size(); i++) {
+        Deteccion det = detecciones.get(i);
+        System.out.println("📊 Detección " + (i + 1) + ": ID=" + det.getIdDeteccion() + 
+                         ", Persona=" + (det.getPersona() != null ? det.getPersona().getNombre() : "NULL") +
+                         ", Cámara=" + (det.getCamara() != null ? det.getCamara().getNombreCamara() : "NULL") +
+                         ", ImagenURL=" + det.getImagenUrl());
+    }
+    
     for (Deteccion det : detecciones) {
         if (det.getImagenUrl() == null || det.getImagenUrl().isEmpty()) {
-            // Asignar una imagen por defecto que SÍ existe
             det.setImagenUrl("/images/persona1.png");
         } else if (!det.getImagenUrl().startsWith("/images/")) {
-            // Corregir rutas incorrectas
             det.setImagenUrl("/images/" + det.getImagenUrl());
         }
     }

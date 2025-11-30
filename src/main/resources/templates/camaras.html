@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <title>Monitoreo de Cámaras - SIVI</title>
   <style>
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+    }
+
+    .status-dot[style*="9b59b6"] {
+      background-color: #9b59b6 !important;
+      color: white;
+    }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -217,7 +231,7 @@
       <a href="/dashboard">Dashboard</a>
       <a href="/alertas">Alertas</a>
       <a href="/camaras">Cámaras</a>
-      <a href="/personas">Personas</a>
+      <a href="/vistas/personas">Personas</a>
       <a href="/detecciones">Detecciones</a>
       <a href="/configuracion">Configuración</a>
     </div>
@@ -445,7 +459,7 @@
                     <button class="btn btn-toggle" onclick="toggleCamara(${camara.idCamara})">
                         ${isActive ? '⏸️ Pausar' : '▶️ Activar'}
                     </button>
-                    <button class="btn btn-config" onclick="abrirConfig(${camara.idCamara}, '${camara.nombreCamara}', '${camara.ubicacion}', '${camara.direccionIp}', ${tieneDeteccion})">⚙️ Config</button>
+                    <button class="btn btn-config" onclick="abrirConfig(${camara.idCamara}, '${camara.nombreCamara}', '${camara.ubicacion}', '${camara.direccionIp}', estadoCamaras[${camara.idCamara}].deteccionAutomatica)">⚙️ Config</button>
                     <button class="btn btn-fullscreen" onclick="pantallaCompleta(${camara.idCamara})">📺 Pantalla completa</button>
                 </div>
             </div>
@@ -493,45 +507,11 @@
     // Cambiar estado localmente
     estado.activa = !estado.activa;
     
-    // Actualizar la interfaz
-    const boton = document.querySelector(`#camera-${idCamara} .btn-toggle`);
-    const estadoTexto = document.querySelector(`#camera-${idCamara} .video-placeholder`);
+    console.log('🔄 Cambiando estado de cámara:', idCamara);
+    console.log('📊 Nuevo estado:', estado);
     
-    if (boton) {
-        boton.textContent = estado.activa ? '⏸️ Pausar' : '▶️ Activar';
-    }
-    
-    if (estadoTexto) {
-        // Actualizar mensajes de estado
-        const mensajes = estadoTexto.innerHTML;
-        if (estado.activa) {
-            estadoTexto.innerHTML = mensajes.replace('⏸️ Cámara pausada', '● Grabando')
-                                           .replace('⛔ Cámara desconectada', '') + '<div style="color: #2ecc71; margin-top: 5px;">● Grabando</div>';
-        } else {
-            estadoTexto.innerHTML = mensajes.replace('● Grabando', '⏸️ Cámara pausada')
-                                           .replace(/<div style="color: #2ecc71; margin-top: 5px;">● Grabando<\/div>/, '')
-                                           .replace('⛔ Cámara desconectada', '') + '<div style="color: #f39c12; margin-top: 5px;">⏸️ Cámara pausada</div>';
-        }
-    }
-    
-    // Actualizar punto de grabación
-    const cameraCard = document.getElementById(`camera-${idCamara}`);
-    const statusContainer = cameraCard.querySelector('.camera-status');
-    
-    if (estado.activa) {
-        if (!statusContainer.querySelector('.status-recording')) {
-            const recordingDot = document.createElement('div');
-            recordingDot.className = 'status-dot status-recording';
-            recordingDot.style.marginLeft = '5px';
-            recordingDot.title = 'Grabando';
-            statusContainer.appendChild(recordingDot);
-        }
-    } else {
-        const recordingDot = statusContainer.querySelector('.status-recording');
-        if (recordingDot) {
-            recordingDot.remove();
-        }
-    }
+    // 🔥 USAR LA FUNCIÓN UNIFICADA PARA ACTUALIZAR LA VISTA
+    actualizarCamaraIndividual(idCamara);
     
     alert(`✅ Cámara ${idCamara} ${estado.activa ? 'activada' : 'pausada'}`);
     
@@ -546,15 +526,35 @@
     }
 }
       
-      function abrirConfig(idCamara, nombre, ubicacion, ip) {
-        camaraConfigActual = idCamara;
-        document.getElementById('configNombre').value = nombre;
-        document.getElementById('configUbicacion').value = ubicacion;
-        document.getElementById('configIp').value = ip;
-        
-        document.getElementById('configOverlay').style.display = 'block';
-        document.getElementById('configModal').style.display = 'block';
-      }
+      function abrirConfig(idCamara, nombre, ubicacion, ip, deteccionActual) {
+    camaraConfigActual = idCamara;
+    document.getElementById('configNombre').value = nombre || '';
+    document.getElementById('configUbicacion').value = ubicacion || '';
+    document.getElementById('configIp').value = ip || '';
+    
+    console.log('🔧 Abriendo configuración cámara:', idCamara);
+    console.log('📊 Detección actual recibida:', deteccionActual);
+    console.log('📊 Tipo de detección recibida:', typeof deteccionActual);
+    console.log('📊 Estado completo de la cámara:', estadoCamaras[idCamara]);
+    
+    // 🔥 OBTENER detección automática del estadoCamaras si no viene como parámetro
+    let deteccionValue;
+    if (deteccionActual !== undefined) {
+        deteccionValue = deteccionActual;
+    } else if (estadoCamaras[idCamara] && estadoCamaras[idCamara].deteccionAutomatica !== undefined) {
+        deteccionValue = estadoCamaras[idCamara].deteccionAutomatica;
+    } else {
+        deteccionValue = true; // Valor por defecto
+    }
+    
+    console.log('📊 Valor final de detección:', deteccionValue);
+    document.getElementById('configDeteccion').value = deteccionValue.toString();
+    
+    console.log('📊 Valor cargado en select:', document.getElementById('configDeteccion').value);
+    
+    document.getElementById('configOverlay').style.display = 'block';
+    document.getElementById('configModal').style.display = 'block';
+}
       
       function cerrarConfig() {
         document.getElementById('configOverlay').style.display = 'none';
@@ -567,20 +567,153 @@
           const nombre = document.getElementById('configNombre').value;
           const ubicacion = document.getElementById('configUbicacion').value;
           const ip = document.getElementById('configIp').value;
-          const deteccion = document.getElementById('configDeteccion').value;
+
+          const deteccionSelect = document.getElementById('configDeteccion');
+          const deteccion = deteccionSelect.value === 'true';
+
           const rotacion = document.getElementById('configRotacion').value;
           const zoom = document.getElementById('configZoom').value;
+
+          console.log('💾 Guardando configuración para cámara:', camaraConfigActual);
+          console.log('💾 Nueva detección automática:', deteccion);
           
           if (estadoCamaras[camaraConfigActual]) {
             estadoCamaras[camaraConfigActual].deteccionAutomatica = deteccion;
+            console.log('✅ Estado actualizado:', estadoCamaras[camaraConfigActual]);
+        } else {
+            // 🔥 SI NO EXISTE, CREAR EL ESTADO
+            estadoCamaras[camaraConfigActual] = {
+                activa: true,
+                online: true,
+                deteccionAutomatica: deteccion
+            };
+            console.log('✅ Estado creado:', estadoCamaras[camaraConfigActual]);
         }
 
           alert(`✅ Configuración guardada para cámara ${camaraConfigActual}\nNombre: ${nombre}\nUbicación: ${ubicacion}\nIP: ${ip}\nDetección: ${deteccion ? 'Activada' : 'Desactivada'}\nRotación: ${rotacion}°\nZoom: ${zoom}x`);
           
-          cargarCamaras();
+          actualizarCamaraIndividual(camaraConfigActual);
           cerrarConfig();
         }
       }
+
+      function actualizarCamaraIndividual(idCamara) {
+    console.log('🔄 Actualizando cámara individual:', idCamara);
+    console.log('📊 Estado actual:', estadoCamaras[idCamara]);
+    
+    const cameraCard = document.getElementById(`camera-${idCamara}`);
+    if (!cameraCard) {
+        console.log('❌ No se encontró la tarjeta de la cámara');
+        return;
+    }
+    
+    const estado = estadoCamaras[idCamara];
+    const isActive = estado.activa;
+    const isOnline = estado.online;
+    const tieneDeteccion = estado.deteccionAutomatica;
+    
+    // 🔥 1. ACTUALIZAR HEADER - Indicador de detección
+    const statusContainer = cameraCard.querySelector('.camera-status');
+    let deteccionIndicator = statusContainer.querySelector('.status-dot[style*="9b59b6"]');
+    
+    if (tieneDeteccion) {
+        if (!deteccionIndicator) {
+            // Crear nuevo indicador de detección
+            deteccionIndicator = document.createElement('div');
+            deteccionIndicator.className = 'status-dot';
+            deteccionIndicator.style.marginLeft = '5px';
+            deteccionIndicator.style.backgroundColor = '#9b59b6';
+            deteccionIndicator.title = 'Detección automática activa';
+            deteccionIndicator.textContent = '🔍';
+            statusContainer.appendChild(deteccionIndicator);
+        }
+    } else {
+        // Remover indicador si existe
+        if (deteccionIndicator) {
+            deteccionIndicator.remove();
+        }
+    }
+    
+    // 🔥 2. ACTUALIZAR BOTÓN TOGGLE
+    const toggleButton = cameraCard.querySelector('.btn-toggle');
+    if (toggleButton) {
+        toggleButton.textContent = isActive ? '⏸️ Pausar' : '▶️ Activar';
+    }
+    
+    // 🔥 3. ACTUALIZAR VIDEO PLACEHOLDER - Texto de detección
+    const videoPlaceholder = cameraCard.querySelector('.video-placeholder');
+    if (videoPlaceholder) {
+        // Remover textos de estado existentes
+        const textosEstado = videoPlaceholder.querySelectorAll('div[style*="color:"]');
+        textosEstado.forEach(texto => {
+            if (texto.textContent.includes('Detección') || 
+                texto.textContent.includes('Grabando') || 
+                texto.textContent.includes('Cámara')) {
+                texto.remove();
+            }
+        });
+        
+        // Agregar textos de estado actualizados
+        if (!isOnline) {
+            const offlineText = document.createElement('div');
+            offlineText.style.color = '#e74c3c';
+            offlineText.style.marginTop = '5px';
+            offlineText.textContent = '⛔ Cámara desconectada';
+            videoPlaceholder.appendChild(offlineText);
+        } else if (!isActive) {
+            const pausedText = document.createElement('div');
+            pausedText.style.color = '#f39c12';
+            pausedText.style.marginTop = '5px';
+            pausedText.textContent = '⏸️ Cámara pausada';
+            videoPlaceholder.appendChild(pausedText);
+        } else {
+            const recordingText = document.createElement('div');
+            recordingText.style.color = '#2ecc71';
+            recordingText.style.marginTop = '5px';
+            recordingText.textContent = '● Grabando';
+            videoPlaceholder.appendChild(recordingText);
+        }
+        
+        // Agregar texto de detección automática
+        const deteccionText = document.createElement('div');
+        deteccionText.style.marginTop = '5px';
+        if (tieneDeteccion) {
+            deteccionText.style.color = '#9b59b6';
+            deteccionText.textContent = '🔍 Detección automática';
+        } else {
+            deteccionText.style.color = '#e74c3c';
+            deteccionText.textContent = '🔴 Detección desactivada';
+        }
+        videoPlaceholder.appendChild(deteccionText);
+    }
+    
+    // 🔥 4. ACTUALIZAR BOTÓN CONFIG para pasar el nuevo estado
+    const configButton = cameraCard.querySelector('.btn-config');
+    if (configButton) {
+        configButton.setAttribute('onclick', 
+            `abrirConfig(${idCamara}, '${document.getElementById('configNombre').value}', '${document.getElementById('configUbicacion').value}', '${document.getElementById('configIp').value}', ${tieneDeteccion})`
+        );
+    }
+    
+    // 🔥 5. ACTUALIZAR INDICADOR DE GRABACIÓN
+    const recordingIndicator = statusContainer.querySelector('.status-recording');
+    if (isActive && isOnline) {
+        if (!recordingIndicator) {
+            const newRecordingIndicator = document.createElement('div');
+            newRecordingIndicator.className = 'status-dot status-recording';
+            newRecordingIndicator.style.marginLeft = '5px';
+            newRecordingIndicator.title = 'Grabando';
+            statusContainer.appendChild(newRecordingIndicator);
+        }
+    } else {
+        if (recordingIndicator) {
+            recordingIndicator.remove();
+        }
+    }
+    
+    console.log('✅ Vista actualizada para cámara:', idCamara);
+}
+
       
     function pantallaCompleta(idCamara) {
     const estado = estadoCamaras[idCamara];
