@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Parámetros del Sistema - Configuración</title>
+    <style>
+        .config-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .parametro-group {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .parametro-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .parametro-info {
+            flex: 1;
+        }
+        
+        .parametro-nombre {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .parametro-descripcion {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .parametro-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .parametro-control input, .parametro-control select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+        
+        .btn-guardar {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn-inicializar {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .saved-indicator {
+            color: #27ae60;
+            font-size: 12px;
+            margin-left: 10px;
+            display: none;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="/js/session-manager.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <h1>⚙️ Parámetros del Sistema</h1>
+        
+        <button class="btn-inicializar" onclick="inicializarParametros()">🔄 Inicializar Parámetros por Defecto</button>
+
+        <!-- 🔍 Detección y Reconocimiento -->
+        <div class="config-section">
+            <h2 class="section-title">🔍 Detección y Reconocimiento</h2>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Nivel de Confianza Mínimo</div>
+                    <div class="parametro-descripcion">Confianza mínima requerida para el reconocimiento facial (0.0 - 1.0)</div>
+                </div>
+                <div class="parametro-control">
+                    <input type="number" id="confianza_minima" min="0" max="1" step="0.1" value="0.8">
+                    <button class="btn-guardar" onclick="guardarParametro('confianza_minima')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_confianza_minima">✅ Guardado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 💾 Almacenamiento y Retención -->
+        <div class="config-section">
+            <h2 class="section-title">💾 Almacenamiento y Retención</h2>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Días de Retención - Detecciones</div>
+                    <div class="parametro-descripcion">Número de días que se conservan los registros de detecciones</div>
+                </div>
+                <div class="parametro-control">
+                    <input type="number" id="dias_retencion_detecciones" min="1" max="365" value="30">
+                    <button class="btn-guardar" onclick="guardarParametro('dias_retencion_detecciones')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_dias_retencion_detecciones">✅ Guardado</span>
+                </div>
+            </div>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Días de Retención - Alertas</div>
+                    <div class="parametro-descripcion">Número de días que se conservan los registros de alertas</div>
+                </div>
+                <div class="parametro-control">
+                    <input type="number" id="dias_retencion_alertas" min="1" max="365" value="90">
+                    <button class="btn-guardar" onclick="guardarParametro('dias_retencion_alertas')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_dias_retencion_alertas">✅ Guardado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔔 Notificaciones y Alertas -->
+        <div class="config-section">
+            <h2 class="section-title">🔔 Notificaciones y Alertas</h2>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Notificaciones por Email</div>
+                    <div class="parametro-descripcion">Enviar notificaciones de alertas por correo electrónico</div>
+                </div>
+                <div class="parametro-control">
+                    <select id="notificaciones_email">
+                        <option value="true">Activado</option>
+                        <option value="false">Desactivado</option>
+                    </select>
+                    <button class="btn-guardar" onclick="guardarParametro('notificaciones_email')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_notificaciones_email">✅ Guardado</span>
+                </div>
+            </div>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Notificaciones por SMS</div>
+                    <div class="parametro-descripcion">Enviar notificaciones de alertas por mensaje de texto</div>
+                </div>
+                <div class="parametro-control">
+                    <select id="notificaciones_sms">
+                        <option value="true">Activado</option>
+                        <option value="false">Desactivado</option>
+                    </select>
+                    <button class="btn-guardar" onclick="guardarParametro('notificaciones_sms')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_notificaciones_sms">✅ Guardado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🌐 Configuración General -->
+        <div class="config-section">
+            <h2 class="section-title">🌐 Configuración General</h2>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Idioma del Sistema</div>
+                    <div class="parametro-descripcion">Idioma de la interfaz de usuario</div>
+                </div>
+                <div class="parametro-control">
+                    <select id="idioma">
+                        <option value="es">Español</option>
+                        <option value="en">English</option>
+                    </select>
+                    <button class="btn-guardar" onclick="guardarParametro('idioma')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_idioma">✅ Guardado</span>
+                </div>
+            </div>
+            
+            <div class="parametro-item">
+                <div class="parametro-info">
+                    <div class="parametro-nombre">Zona Horaria</div>
+                    <div class="parametro-descripcion">Zona horaria para fechas y horas del sistema</div>
+                </div>
+                <div class="parametro-control">
+                    <select id="zona_horaria">
+                        <option value="America/Lima">Lima, Perú (GMT-5)</option>
+                        <option value="America/Mexico_City">Ciudad de México (GMT-6)</option>
+                        <option value="America/Bogota">Bogotá, Colombia (GMT-5)</option>
+                        <option value="America/Santiago">Santiago, Chile (GMT-4)</option>
+                        <option value="UTC">UTC</option>
+                    </select>
+                    <button class="btn-guardar" onclick="guardarParametro('zona_horaria')">💾 Guardar</button>
+                    <span class="saved-indicator" id="saved_zona_horaria">✅ Guardado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarParametros();
+        });
+
+        async function cargarParametros() {
+            try {
+                const response = await fetch('/api/parametros');
+                if (response.ok) {
+                    const parametros = await response.json();
+                    
+                    // 🔍 Detección y Reconocimiento
+                    document.getElementById('confianza_minima').value = parametros.confianza_minima;
+                    
+                    // 💾 Almacenamiento y Retención
+                    document.getElementById('dias_retencion_detecciones').value = parametros.dias_retencion_detecciones;
+                    document.getElementById('dias_retencion_alertas').value = parametros.dias_retencion_alertas;
+                    
+                    // 🔔 Notificaciones
+                    document.getElementById('notificaciones_email').value = parametros.notificaciones_email;
+                    document.getElementById('notificaciones_sms').value = parametros.notificaciones_sms;
+                    
+                    // 🌐 Configuración General
+                    document.getElementById('idioma').value = parametros.idioma;
+                    document.getElementById('zona_horaria').value = parametros.zona_horaria;
+                    
+                } else {
+                    console.log('No hay parámetros configurados, usando valores por defecto');
+                }
+            } catch (error) {
+                console.error('Error cargando parámetros:', error);
+            }
+        }
+
+        async function guardarParametro(nombreParametro) {
+            const valor = document.getElementById(nombreParametro).value;
+            
+            try {
+                const response = await fetch(`/api/parametros/${nombreParametro}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ valor })
+                });
+
+                if (response.ok) {
+                    // Mostrar indicador de guardado
+                    const indicator = document.getElementById(`saved_${nombreParametro}`);
+                    indicator.style.display = 'inline';
+                    setTimeout(() => {
+                        indicator.style.display = 'none';
+                    }, 2000);
+                } else {
+                    alert('❌ Error al guardar el parámetro');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al guardar el parámetro');
+            }
+        }
+
+        async function inicializarParametros() {
+            if (confirm('¿Estás seguro de inicializar todos los parámetros con valores por defecto? Esto sobrescribirá cualquier configuración existente.')) {
+                try {
+                    const response = await fetch('/api/parametros/inicializar', {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Parámetros inicializados correctamente');
+                        cargarParametros();
+                    } else {
+                        alert('❌ Error al inicializar parámetros');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al inicializar parámetros');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

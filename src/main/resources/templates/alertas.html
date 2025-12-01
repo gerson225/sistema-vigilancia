@@ -139,17 +139,12 @@
       border: 1px solid #ccc;
     }
   </style>
+  <script src="/js/session-manager.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-      <h2>SIVI</h2>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/alertas">Alertas</a>
-      <a href="/camaras">Cámaras</a>
-      <a href="/vistas/personas">Personas</a>
-      <a href="/detecciones">Detecciones</a>
-      <a href="/configuracion">Configuración</a>
+      
     </div>
 
     <!-- Contenido principal -->
@@ -268,6 +263,7 @@
           tbody.innerHTML += row;
         });
       }
+     
 
       // Función para actualizar métricas
       function actualizarMetricas(alertas) {

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Cámaras - Configuración</title>
+    <style>
+        /* Tus estilos actuales del sidebar + nuevos estilos para gestión */
+        .config-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .badge-activa { background: #27ae60; }
+        .badge-inactiva { background: #e74c3c; }
+    </style>
+    <script src="/js/session-manager.js"></script>
+</head>
+<body>
+    <!-- Sidebar (igual que en personas.html) -->
+    <div class="sidebar">
+        
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <h1>⚙️ Gestión de Cámaras</h1>
+        
+        <!-- Formulario de registro -->
+        <div class="config-section">
+            <h2>➕ Registrar Nueva Cámara</h2>
+            <form id="formCamara">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombreCamara">Nombre de la cámara *</label>
+                        <input type="text" id="nombreCamara" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación *</label>
+                        <input type="text" id="ubicacion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="direccionIp">Dirección IP *</label>
+                        <input type="text" id="direccionIp" required placeholder="192.168.1.100">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado inicial</label>
+                        <select id="estado">
+                            <option value="ACTIVA">Activa</option>
+                            <option value="INACTIVA">Inactiva</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" onclick="guardarCamara()">💾 Guardar Cámara</button>
+            </form>
+        </div>
+
+        <!-- Lista de cámaras -->
+        <div class="config-section">
+            <h2>📋 Cámaras Registradas</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Ubicación</th>
+                            <th>Dirección IP</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCamaras">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript para la gestión de cámaras
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarCamaras();
+        });
+
+        async function cargarCamaras() {
+            try {
+                const response = await fetch('/api/camaras');
+                if (response.ok) {
+                    const camaras = await response.json();
+                    actualizarTablaCamaras(camaras);
+                }
+            } catch (error) {
+                console.error('Error cargando cámaras:', error);
+            }
+        }
+
+        function actualizarTablaCamaras(camaras) {
+            const tbody = document.getElementById('tablaCamaras');
+            tbody.innerHTML = '';
+
+            camaras.forEach(camara => {
+                const row = `
+                    <tr>
+                        <td>${camara.idCamara}</td>
+                        <td>${camara.nombreCamara}</td>
+                        <td>${camara.ubicacion}</td>
+                        <td>${camara.direccionIp}</td>
+                        <td>
+                            <span class="badge badge-${camara.estado.toLowerCase()}">
+                                ${camara.estado}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-warning" onclick="editarCamara(${camara.idCamara})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="eliminarCamara(${camara.idCamara})">🗑️ Eliminar</button>
+                            <button class="btn btn-info" onclick="toggleEstado(${camara.idCamara})">
+                                ${camara.estado === 'ACTIVA' ? '⏸️ Pausar' : '▶️ Activar'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function guardarCamara() {
+            const camaraData = {
+                nombreCamara: document.getElementById('nombreCamara').value,
+                ubicacion: document.getElementById('ubicacion').value,
+                direccionIp: document.getElementById('direccionIp').value,
+                estado: document.getElementById('estado').value
+            };
+
+            try {
+                const response = await fetch('/api/camaras', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(camaraData)
+                });
+
+                if (response.ok) {
+                    alert('✅ Cámara registrada correctamente');
+                    document.getElementById('formCamara').reset();
+                    cargarCamaras();
+                } else {
+                    alert('❌ Error al registrar la cámara');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al registrar la cámara');
+            }
+        }
+
+        async function eliminarCamara(id) {
+            if (confirm('¿Estás seguro de eliminar esta cámara?')) {
+                try {
+                    const response = await fetch(`/api/camaras/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Cámara eliminada correctamente');
+                        cargarCamaras();
+                    } else {
+                        alert('❌ Error al eliminar la cámara');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al eliminar la cámara');
+                }
+            }
+        }
+
+        async function toggleEstado(id) {
+            try {
+                const response = await fetch(`/api/camaras/${id}/toggle`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert('✅ Estado de cámara actualizado');
+                    cargarCamaras();
+                } else {
+                    alert('❌ Error al cambiar estado');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al cambiar estado');
+            }
+        }
+
+        // Función editarCamara (similar a la de personas)
+        async function editarCamara(id) {
+            // Implementar similar al módulo de personas
+            alert(`✏️ Editar cámara ${id} - Por implementar`);
+        }
+    </script>
+</body>
+</html>

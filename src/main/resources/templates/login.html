@@ -103,7 +103,7 @@
   </div>
 
   <script>
-    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
     const usuario = document.getElementById("usuario").value;
@@ -127,13 +127,18 @@
             mensaje.style.color = "green";
             mensaje.textContent = "Acceso correcto - Rol: " + data.rol;
             
-            // Guardar en sessionStorage (opcional, para frontend)
+            // 🔥 GUARDAR EN SESSIONSTORAGE (IMPORTANTE)
             sessionStorage.setItem("rol", data.rol);
             sessionStorage.setItem("idUsuario", data.idUsuario);
             sessionStorage.setItem("usuario", usuario);
+            sessionStorage.setItem("nombre", data.nombre || usuario); // Si tu API devuelve nombre
+            sessionStorage.setItem("timestamp", new Date().getTime()); // Para controlar expiración
             
-            // Redirigir al dashboard
-            window.location.href = "/dashboard";
+            // 🔥 REDIRIGIR CON RETRASO PARA VER EL MENSAJE
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 1000);
+            
         } else {
             mensaje.style.color = "red";
             mensaje.textContent = data.mensaje;
@@ -143,6 +148,6 @@
         document.getElementById("mensaje").textContent = "Error de conexión con el servidor.";
     }
 });
-    </script>
+</script>
 </body>
 </html>

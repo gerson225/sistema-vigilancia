@@ -20,6 +20,30 @@ public class CamaraService {
         return camaraRepository.findAll();
     }
 
+    public Camara obtenerCamaraPorId(Integer id) {
+        return camaraRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Cámara no encontrada con ID: " + id));
+    }
+
+    public Camara guardarCamara(Camara camara) {
+        // Validaciones básicas
+        if (camara.getNombreCamara() == null || camara.getNombreCamara().trim().isEmpty()) {
+            throw new RuntimeException("El nombre de la cámara es obligatorio");
+        }
+        if (camara.getDireccionIp() == null || camara.getDireccionIp().trim().isEmpty()) {
+            throw new RuntimeException("La dirección IP es obligatoria");
+        }
+        
+        return camaraRepository.save(camara);
+    }
+
+    public void eliminarCamara(Integer id) {
+        if (!camaraRepository.existsById(id)) {
+            throw new RuntimeException("Cámara no encontrada con ID: " + id);
+        }
+        camaraRepository.deleteById(id);
+    }
+
     public Camara cambiarEstadoCamara(Integer idCamara, String nuevoEstado) {
         Camara camara = camaraRepository.findById(idCamara)
             .orElseThrow(() -> new RuntimeException("Cámara no encontrada"));
@@ -39,5 +63,5 @@ public class CamaraService {
     }
     
     return camaraRepository.save(camara);
-}
+    }
 }

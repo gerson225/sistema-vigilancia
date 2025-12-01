@@ -233,17 +233,12 @@
             margin-top: 20px;
         }
     </style>
+    <script src="/js/session-manager.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <h2>SIVI</h2>
-        <a href="/dashboard">Dashboard</a>
-        <a href="/alertas">Alertas</a>
-        <a href="/camaras">Cámaras</a>
-        <a href="/vistas/personas">Personas</a>
-        <a href="/detecciones">Detecciones</a>
-        <a href="/configuracion">Configuración</a>
+        
     </div>
 
     <!-- Contenido principal -->
@@ -460,6 +455,80 @@
                 tbody.innerHTML += row;
             });
         }
+        
+        // 🔥 FUNCIÓN PARA GENERAR SIDEBAR DINÁMICO SEGÚN EL ROL
+function generarSidebarSegunRol() {
+    const rol = sessionStorage.getItem('rol') || localStorage.getItem('rol');
+    const esAdministrador = rol === 'ADMINISTRADOR';
+    
+    let sidebarHTML = `
+        <h2>SIVI</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/alertas">Alertas</a>
+        <a href="/camaras">Cámaras</a>
+        <a href="/detecciones">Detecciones</a>
+    `;
+    
+    // 🔐 SOLO ADMINISTRADORES PUEDEN VER PERSONAS Y CONFIGURACIÓN
+    if (esAdministrador) {
+        sidebarHTML += `
+            <a href="/vistas/personas">Personas</a>
+            <a href="/configuracion">Configuración</a>
+        `;
+    }
+    
+    sidebarHTML += `
+        <div style="margin-top: 20px; padding: 10px; border-top: 1px solid #34495e;">
+            <small>Usuario: <strong>${sessionStorage.getItem('nombre') || 'Usuario'}</strong></small><br>
+            <small>Rol: <strong>${rol || 'No definido'}</strong></small>
+        </div>
+        <a href="#" onclick="cerrarSesion()" style="margin-top: 10px;">🚪 Cerrar Sesión</a>
+    `;
+    
+    document.querySelector('.sidebar').innerHTML = sidebarHTML;
+}
+
+// 🔥 AL CARGAR CADA PÁGINA, VERIFICAR SESIÓN Y GENERAR SIDEBAR
+document.addEventListener('DOMContentLoaded', function() {
+    verificarSesion();
+});
+
+async function verificarSesion() {
+    try {
+        const response = await fetch('/api/check-session');
+        if (response.ok) {
+            const sessionData = await response.json();
+            if (sessionData.success) {
+                // Guardar datos en sessionStorage para fácil acceso
+                sessionStorage.setItem('rol', sessionData.rol);
+                sessionStorage.setItem('nombre', sessionData.nombre || 'Usuario');
+                
+                // Generar sidebar dinámico
+                generarSidebarSegunRol();
+            } else {
+                window.location.href = '/login';
+            }
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('Error verificando sesión:', error);
+        window.location.href = '/login';
+    }
+}
+
+async function cerrarSesion() {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+        // Limpiar storage
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Error cerrando sesión:', error);
+        window.location.href = '/login';
+    }
+}
 
         // Función para actualizar estadísticas
         function actualizarEstadisticas(personas) {

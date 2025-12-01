@@ -28,8 +28,32 @@ public class Usuario {
     private Timestamp fechaCreacion; 
 
     @Column(name = "id_rol")
-    private Integer idRol; // puede ser null hasta sincronizar
+    private Integer idRol; 
 
     @Column(name = "contraseña", nullable = false)
-    private String contrasena; // mapea a la columna con ñ
+    private String contrasena; 
+
+    // 🔥 NUEVO MÉTODO PARA VERIFICAR PERMISOS
+    public boolean puedeAccederConfiguracion() {
+        return "ADMINISTRADOR".equals(this.rol);
+    }
+
+    public boolean puedeAccederPersonas() {
+        return "ADMINISTRADOR".equals(this.rol);
+    }
+
+    public boolean puedeAccederModulo(String modulo) {
+        switch (modulo.toUpperCase()) {
+            case "CONFIGURACION":
+            case "PERSONAS":
+                return "ADMINISTRADOR".equals(this.rol);
+            case "DASHBOARD":
+            case "ALERTAS":
+            case "CAMARAS":
+            case "DETECCIONES":
+                return true; // Ambos roles pueden acceder
+            default:
+                return false;
+        }
+    }
 }

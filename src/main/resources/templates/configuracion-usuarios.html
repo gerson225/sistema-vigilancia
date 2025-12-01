@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios - Configuración</title>
+    <style>
+        .config-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .badge-admin { background: #e74c3c; color: white; padding: 4px 8px; border-radius: 12px; }
+        .badge-operador { background: #3498db; color: white; padding: 4px 8px; border-radius: 12px; }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+        }
+        
+        .btn-success { background: #27ae60; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-info { background: #3498db; color: white; }
+    </style>
+    <script src="/js/session-manager.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <h1>👥 Gestión de Usuarios del Sistema</h1>
+        
+        <!-- Formulario de registro -->
+        <div class="config-section">
+            <h2>➕ Registrar Nuevo Usuario</h2>
+            <form id="formUsuario">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo *</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rol">Rol *</label>
+                        <select id="rol" required onchange="actualizarPatronUsuario()">
+                            <option value="">Seleccionar rol</option>
+                            <option value="ADMINISTRADOR">Administrador</option>
+                            <option value="OPERADOR">Operador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuario">Nombre de usuario *</label>
+                        <input type="text" id="usuario" required>
+                        <div class="help-text" id="helpUsuario">
+                            Seleccione un rol para ver el patrón requerido
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contrasena">Contraseña temporal *</label>
+                        <input type="password" id="contrasena" required value="Temp123456">
+                        <div class="help-text">El usuario deberá cambiar su contraseña en el primer login</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" onclick="guardarUsuario()">💾 Guardar Usuario</button>
+            </form>
+        </div>
+
+        <!-- Lista de usuarios -->
+        <div class="config-section">
+            <h2>📋 Usuarios Registrados</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Fecha Creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuarios">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cambiar contraseña -->
+    <div class="modal-overlay" id="passwordOverlay" onclick="cerrarModalPassword()"></div>
+    <div class="modal" id="passwordModal">
+        <h3>🔐 Cambiar Contraseña</h3>
+        <div class="form-group">
+            <label for="nuevaContrasena">Nueva contraseña *</label>
+            <input type="password" id="nuevaContrasena" required>
+            <div class="help-text">Mínimo 6 caracteres</div>
+        </div>
+        <div class="form-group">
+            <label for="confirmarContrasena">Confirmar contraseña *</label>
+            <input type="password" id="confirmarContrasena" required>
+        </div>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn btn-success" onclick="cambiarContrasena()">💾 Cambiar</button>
+            <button class="btn btn-danger" onclick="cerrarModalPassword()">❌ Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        let usuarioEditando = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarUsuarios();
+        });
+
+        function actualizarPatronUsuario() {
+            const rol = document.getElementById('rol').value;
+            const helpText = document.getElementById('helpUsuario');
+            
+            if (rol === 'ADMINISTRADOR') {
+                helpText.innerHTML = 'Patrón requerido: <strong>A12345678</strong> (A + 8 dígitos)';
+                document.getElementById('usuario').placeholder = 'A12345678';
+            } else if (rol === 'OPERADOR') {
+                helpText.innerHTML = 'Patrón requerido: <strong>O87654321</strong> (O + 8 dígitos)';
+                document.getElementById('usuario').placeholder = 'O87654321';
+            } else {
+                helpText.innerHTML = 'Seleccione un rol para ver el patrón requerido';
+                document.getElementById('usuario').placeholder = '';
+            }
+        }
+
+        async function cargarUsuarios() {
+            try {
+                const response = await fetch('/api/usuarios');
+                if (response.ok) {
+                    const usuarios = await response.json();
+                    actualizarTablaUsuarios(usuarios);
+                }
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+
+        function actualizarTablaUsuarios(usuarios) {
+            const tbody = document.getElementById('tablaUsuarios');
+            tbody.innerHTML = '';
+
+            usuarios.forEach(usuario => {
+                const fecha = new Date(usuario.fechaCreacion).toLocaleDateString();
+                const row = `
+                    <tr>
+                        <td>${usuario.idUsuario}</td>
+                        <td>${usuario.nombre}</td>
+                        <td><strong>${usuario.usuario}</strong></td>
+                        <td>
+                            <span class="badge-${usuario.rol.toLowerCase()}">
+                                ${usuario.rol}
+                            </span>
+                        </td>
+                        <td>${fecha}</td>
+                        <td>
+                            <button class="btn btn-warning" onclick="editarUsuario(${usuario.idUsuario})">✏️ Editar</button>
+                            <button class="btn btn-info" onclick="abrirModalPassword(${usuario.idUsuario})">🔐 Contraseña</button>
+                            <button class="btn btn-danger" onclick="eliminarUsuario(${usuario.idUsuario})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function guardarUsuario() {
+            const usuarioData = {
+                nombre: document.getElementById('nombre').value,
+                usuario: document.getElementById('usuario').value,
+                rol: document.getElementById('rol').value,
+                contrasena: document.getElementById('contrasena').value
+            };
+
+            try {
+                const response = await fetch('/api/usuarios', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(usuarioData)
+                });
+
+                if (response.ok) {
+                    alert('✅ Usuario registrado correctamente');
+                    document.getElementById('formUsuario').reset();
+                    cargarUsuarios();
+                } else {
+                    const error = await response.text();
+                    alert('❌ Error: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al registrar el usuario');
+            }
+        }
+
+        async function eliminarUsuario(id) {
+            if (confirm('¿Estás seguro de eliminar este usuario?')) {
+                try {
+                    const response = await fetch(`/api/usuarios/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('✅ Usuario eliminado correctamente');
+                        cargarUsuarios();
+                    } else {
+                        alert('❌ Error al eliminar el usuario');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error al eliminar el usuario');
+                }
+            }
+        }
+
+        function abrirModalPassword(idUsuario) {
+            usuarioEditando = idUsuario;
+            document.getElementById('passwordOverlay').style.display = 'block';
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        function cerrarModalPassword() {
+            document.getElementById('passwordOverlay').style.display = 'none';
+            document.getElementById('passwordModal').style.display = 'none';
+            usuarioEditando = null;
+        }
+
+        async function cambiarContrasena() {
+            const nuevaContrasena = document.getElementById('nuevaContrasena').value;
+            const confirmarContrasena = document.getElementById('confirmarContrasena').value;
+
+            if (nuevaContrasena !== confirmarContrasena) {
+                alert('❌ Las contraseñas no coinciden');
+                return;
+            }
+
+            if (nuevaContrasena.length < 6) {
+                alert('❌ La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/usuarios/${usuarioEditando}/cambiar-contrasena`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nuevaContrasena })
+                });
+
+                if (response.ok) {
+                    alert('✅ Contraseña cambiada correctamente');
+                    cerrarModalPassword();
+                } else {
+                    const error = await response.text();
+                    alert('❌ Error: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al cambiar contraseña');
+            }
+        }
+
+        // Función editarUsuario (similar a la de cámaras)
+        async function editarUsuario(id) {
+            // Implementar similar al módulo de cámaras
+            alert(`✏️ Editar usuario ${id} - Por implementar`);
+        }
+    </script>
+</body>
+</html>

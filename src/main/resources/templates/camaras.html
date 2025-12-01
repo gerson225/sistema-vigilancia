@@ -223,17 +223,12 @@
       color: #bdc3c7;
     }
   </style>
+  <script src="/js/session-manager.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-      <h2>SIVI</h2>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/alertas">Alertas</a>
-      <a href="/camaras">Cámaras</a>
-      <a href="/vistas/personas">Personas</a>
-      <a href="/detecciones">Detecciones</a>
-      <a href="/configuracion">Configuración</a>
+      
     </div>
 
     <!-- Contenido principal -->
@@ -468,6 +463,80 @@
         });
       }
       
+      // 🔥 FUNCIÓN PARA GENERAR SIDEBAR DINÁMICO SEGÚN EL ROL
+function generarSidebarSegunRol() {
+    const rol = sessionStorage.getItem('rol') || localStorage.getItem('rol');
+    const esAdministrador = rol === 'ADMINISTRADOR';
+    
+    let sidebarHTML = `
+        <h2>SIVI</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/alertas">Alertas</a>
+        <a href="/camaras">Cámaras</a>
+        <a href="/detecciones">Detecciones</a>
+    `;
+    
+    // 🔐 SOLO ADMINISTRADORES PUEDEN VER PERSONAS Y CONFIGURACIÓN
+    if (esAdministrador) {
+        sidebarHTML += `
+            <a href="/vistas/personas">Personas</a>
+            <a href="/configuracion">Configuración</a>
+        `;
+    }
+    
+    sidebarHTML += `
+        <div style="margin-top: 20px; padding: 10px; border-top: 1px solid #34495e;">
+            <small>Usuario: <strong>${sessionStorage.getItem('nombre') || 'Usuario'}</strong></small><br>
+            <small>Rol: <strong>${rol || 'No definido'}</strong></small>
+        </div>
+        <a href="#" onclick="cerrarSesion()" style="margin-top: 10px;">🚪 Cerrar Sesión</a>
+    `;
+    
+    document.querySelector('.sidebar').innerHTML = sidebarHTML;
+}
+
+// 🔥 AL CARGAR CADA PÁGINA, VERIFICAR SESIÓN Y GENERAR SIDEBAR
+document.addEventListener('DOMContentLoaded', function() {
+    verificarSesion();
+});
+
+async function verificarSesion() {
+    try {
+        const response = await fetch('/api/check-session');
+        if (response.ok) {
+            const sessionData = await response.json();
+            if (sessionData.success) {
+                // Guardar datos en sessionStorage para fácil acceso
+                sessionStorage.setItem('rol', sessionData.rol);
+                sessionStorage.setItem('nombre', sessionData.nombre || 'Usuario');
+                
+                // Generar sidebar dinámico
+                generarSidebarSegunRol();
+            } else {
+                window.location.href = '/login';
+            }
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('Error verificando sesión:', error);
+        window.location.href = '/login';
+    }
+}
+
+async function cerrarSesion() {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+        // Limpiar storage
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Error cerrando sesión:', error);
+        window.location.href = '/login';
+    }
+}
+
       // Función para actualizar estadísticas
       function actualizarEstadisticas(camaras) {
         const totalCamaras = camaras.length;
@@ -633,7 +702,6 @@
             deteccionIndicator.remove();
         }
     }
-    
     // 🔥 2. ACTUALIZAR BOTÓN TOGGLE
     const toggleButton = cameraCard.querySelector('.btn-toggle');
     if (toggleButton) {
@@ -652,7 +720,6 @@
                 texto.remove();
             }
         });
-        
         // Agregar textos de estado actualizados
         if (!isOnline) {
             const offlineText = document.createElement('div');
@@ -673,8 +740,7 @@
             recordingText.textContent = '● Grabando';
             videoPlaceholder.appendChild(recordingText);
         }
-        
-        // Agregar texto de detección automática
+   
         const deteccionText = document.createElement('div');
         deteccionText.style.marginTop = '5px';
         if (tieneDeteccion) {
@@ -687,14 +753,12 @@
         videoPlaceholder.appendChild(deteccionText);
     }
     
-    // 🔥 4. ACTUALIZAR BOTÓN CONFIG para pasar el nuevo estado
     const configButton = cameraCard.querySelector('.btn-config');
     if (configButton) {
         configButton.setAttribute('onclick', 
             `abrirConfig(${idCamara}, '${document.getElementById('configNombre').value}', '${document.getElementById('configUbicacion').value}', '${document.getElementById('configIp').value}', ${tieneDeteccion})`
         );
     }
-    
     // 🔥 5. ACTUALIZAR INDICADOR DE GRABACIÓN
     const recordingIndicator = statusContainer.querySelector('.status-recording');
     if (isActive && isOnline) {
@@ -712,20 +776,15 @@
     }
     
     console.log('✅ Vista actualizada para cámara:', idCamara);
-}
-
-      
+}  
     function pantallaCompleta(idCamara) {
     const estado = estadoCamaras[idCamara];
-    
     if (!estado.online) {
         alert('❌ No se puede activar pantalla completa: Cámara desconectada');
         return;
     }
-    
     const cameraCard = document.getElementById(`camera-${idCamara}`);
     const videoSection = cameraCard.querySelector('.camera-video');
-    
     if (videoSection.requestFullscreen) {
         videoSection.requestFullscreen();
     } else if (videoSection.webkitRequestFullscreen) {
@@ -735,7 +794,6 @@
     } else {
         alert(`📺 Simulando pantalla completa para cámara ${idCamara}\n\nEn una implementación real, esto activaría el modo pantalla completa del stream de video.`);
     }
-    
     // Agregar estilo para pantalla completa
     videoSection.style.cursor = 'pointer';
     videoSection.onclick = function() {

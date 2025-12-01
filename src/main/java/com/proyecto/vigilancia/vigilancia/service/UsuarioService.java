@@ -1,6 +1,7 @@
 package com.proyecto.vigilancia.vigilancia.service;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 import com.proyecto.vigilancia.vigilancia.entity.Usuario;
@@ -17,6 +18,63 @@ public class UsuarioService {
     public UsuarioService(UsuarioRepository usuarioRepository, BCryptPasswordEncoder encoder) {
         this.usuarioRepository = usuarioRepository;
         this.encoder = encoder;
+    }
+    public List<Usuario> obtenerTodosLosUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    public Usuario actualizarUsuario(Integer id, Usuario usuarioActualizado) {
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Validar patrón si cambió el usuario
+        if (!usuarioExistente.getUsuario().equals(usuarioActualizado.getUsuario())) {
+            validarPatronUsuario(usuarioActualizado.getUsuario(), usuarioActualizado.getRol());
+        }
+
+        usuarioExistente.setNombre(usuarioActualizado.getNombre());
+        usuarioExistente.setUsuario(usuarioActualizado.getUsuario());
+        usuarioExistente.setRol(usuarioActualizado.getRol());
+        
+        // Actualizar idRol basado en el rol
+        if ("ADMINISTRADOR".equals(usuarioActualizado.getRol())) {
+            usuarioExistente.setIdRol(1);
+        } else if ("OPERADOR".equals(usuarioActualizado.getRol())) {
+            usuarioExistente.setIdRol(2);
+        } else {
+            usuarioExistente.setIdRol(3);
+        }
+
+        return usuarioRepository.save(usuarioExistente);
+    }
+
+    public void eliminarUsuario(Integer id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        usuarioRepository.deleteById(id);
+    }
+
+     public void cambiarContrasena(Integer id, String nuevaContrasena) {
+        Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        usuario.setContrasena(encoder.encode(nuevaContrasena));
+        usuarioRepository.save(usuario);
+    }
+
+     private void validarPatronUsuario(String usuario, String rol) {
+        if ("ADMINISTRADOR".equals(rol) && !usuario.matches("^A\\d{8}$")) {
+            throw new IllegalArgumentException("Usuario administrador debe comenzar con A y tener 8 dígitos (Ej: A12345678)");
+        }
+        if ("OPERADOR".equals(rol) && !usuario.matches("^O\\d{8}$")) {
+            throw new IllegalArgumentException("Usuario operador debe comenzar con O y tener 8 dígitos (Ej: O87654321)");
+        }
+        
+        // Verificar si el usuario ya existe
+        if (usuarioRepository.findByUsuario(usuario).isPresent()) {
+            throw new IllegalArgumentException("El nombre de usuario ya existe");
+        }
     }
 
     // Registrar usuario con idRol explícito

@@ -26,7 +26,7 @@ public class UsuarioController {
         );
 
         return ResponseEntity.ok(
-            new LoginResponse(true, "Usuario registrado correctamente", nuevo.getRol(), nuevo.getIdUsuario())
+            new LoginResponse(true, "Usuario registrado correctamente", nuevo.getRol(), nuevo.getIdUsuario(), nuevo.getNombre())
         );
     }
 
