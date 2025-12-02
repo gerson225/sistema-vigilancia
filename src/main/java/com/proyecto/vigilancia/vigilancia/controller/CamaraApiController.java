@@ -52,15 +52,30 @@ public class CamaraApiController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Camara> actualizarCamara(@PathVariable Integer id, @RequestBody Camara camara) {
-        try {
-            camara.setIdCamara(id);
-            Camara camaraActualizada = camaraService.guardarCamara(camara);
-            return ResponseEntity.ok(camaraActualizada);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+public ResponseEntity<Camara> actualizarCamara(@PathVariable Integer id, @RequestBody Camara camara) {
+    try {
+        // Buscar cámara existente
+        Camara camaraExistente = camaraService.obtenerCamaraPorId(id);
+        
+        // Actualizar solo los campos permitidos
+        camaraExistente.setNombreCamara(camara.getNombreCamara());
+        camaraExistente.setUbicacion(camara.getUbicacion());
+        camaraExistente.setDireccionIp(camara.getDireccionIp());
+        
+        // Solo actualizar estado si viene en la solicitud
+        if (camara.getEstado() != null) {
+            camaraExistente.setEstado(camara.getEstado());
         }
+        
+        // Guardar cambios
+        Camara camaraActualizada = camaraService.guardarCamara(camaraExistente);
+        return ResponseEntity.ok(camaraActualizada);
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error actualizando cámara " + id + ": " + e.getMessage());
+        return ResponseEntity.badRequest().build();
     }
+}
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarCamara(@PathVariable Integer id) {

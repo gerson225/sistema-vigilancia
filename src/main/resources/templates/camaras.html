@@ -467,8 +467,7 @@
     // Cambiar estado localmente
     estado.activa = !estado.activa;
     
-    console.log('🔄 Cambiando estado de cámara:', idCamara);
-    console.log('📊 Nuevo estado:', estado);
+    
     
     // 🔥 USAR LA FUNCIÓN UNIFICADA PARA ACTUALIZAR LA VISTA
     actualizarCamaraIndividual(idCamara);
@@ -492,10 +491,7 @@
     document.getElementById('configUbicacion').value = ubicacion || '';
     document.getElementById('configIp').value = ip || '';
     
-    console.log('🔧 Abriendo configuración cámara:', idCamara);
-    console.log('📊 Detección actual recibida:', deteccionActual);
-    console.log('📊 Tipo de detección recibida:', typeof deteccionActual);
-    console.log('📊 Estado completo de la cámara:', estadoCamaras[idCamara]);
+    
     
     // 🔥 OBTENER detección automática del estadoCamaras si no viene como parámetro
     let deteccionValue;
@@ -507,7 +503,7 @@
         deteccionValue = true; // Valor por defecto
     }
     
-    console.log('📊 Valor final de detección:', deteccionValue);
+    
     document.getElementById('configDeteccion').value = deteccionValue.toString();
     
     console.log('📊 Valor cargado en select:', document.getElementById('configDeteccion').value);
@@ -534,8 +530,7 @@
           const rotacion = document.getElementById('configRotacion').value;
           const zoom = document.getElementById('configZoom').value;
 
-          console.log('💾 Guardando configuración para cámara:', camaraConfigActual);
-          console.log('💾 Nueva detección automática:', deteccion);
+          
           
           if (estadoCamaras[camaraConfigActual]) {
             estadoCamaras[camaraConfigActual].deteccionAutomatica = deteccion;
@@ -558,8 +553,7 @@
       }
 
       function actualizarCamaraIndividual(idCamara) {
-    console.log('🔄 Actualizando cámara individual:', idCamara);
-    console.log('📊 Estado actual:', estadoCamaras[idCamara]);
+    
     
     const cameraCard = document.getElementById(`camera-${idCamara}`);
     if (!cameraCard) {

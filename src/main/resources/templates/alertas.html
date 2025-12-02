@@ -5,8 +5,7 @@
   <title>Panel de Alertas - SIVI</title>
   <link rel="stylesheet" href="/css/layout.css">
   <style>
-    
-    
+    /* Estilos base */
     h1 {
       color: #2c3e50;
       margin-bottom: 20px;
@@ -88,6 +87,17 @@
     .btn-success { background-color: #27ae60; color: white; }
     .btn-warning { background-color: #f39c12; color: white; }
     .btn-danger { background-color: #e74c3c; color: white; }
+    .btn-info { background-color: #17a2b8; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    .btn-dark { background-color: #343a40; color: white; }
+    
+    /* Nuevos estilos para botones específicos */
+    .btn-escalar { background-color: #8b0000; color: white; }
+    .btn-reasignar { background-color: #9b59b6; color: white; }
+    .btn-falsa { background-color: #95a5a6; color: white; }
+    .btn-historial { background-color: #34495e; color: white; }
+    .btn-exportar { background-color: #16a085; color: white; }
+    .btn-escalar-operador { background-color: #d35400; color: white; }
     
     .filtros {
       display: flex;
@@ -101,14 +111,88 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+    
+    /* Modal para formularios */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 400px;
+      max-width: 90%;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .close {
+      font-size: 24px;
+      cursor: pointer;
+      color: #aaa;
+    }
+    
+    .close:hover {
+      color: #000;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .btn-group button {
+      flex: 1;
+    }
+    
+    /* Estilos para botones en tabla */
+    .acciones-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
   </style>
   <script src="/js/session-manager.js"></script>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-      
-    </div>
+    <!-- Sidebar se generará automáticamente -->
 
     <!-- Contenido principal -->
     <div class="main-content">
@@ -132,8 +216,8 @@
           <option value="CRITICA">Crítica</option>
         </select>
         
-        <button onclick="filtrarAlertas()">Filtrar</button>
-        <button onclick="limpiarFiltros()">Limpiar</button>
+        <button onclick="filtrarAlertas()" class="btn btn-primary">Filtrar</button>
+        <button onclick="limpiarFiltros()" class="btn btn-secondary">Limpiar</button>
       </div>
 
       <!-- Cards de métricas -->
@@ -175,8 +259,216 @@
       </table>
     </div>
 
+    <!-- Modal para Resolver con Observación -->
+    <div id="modalResolver" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>✅ Resolver Alerta</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalResolver')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formResolver">
+            <input type="hidden" id="alertaResolverId">
+            <div class="form-group">
+              <label for="accionesTomadas">Acciones Tomadas:</label>
+              <textarea id="accionesTomadas" rows="3" placeholder="Describe las acciones realizadas..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="observacionesResolucion">Observaciones (Obligatorias):</label>
+              <textarea id="observacionesResolucion" rows="3" placeholder="Detalle lo que se hizo para resolver..." required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarResolucion()" class="btn btn-success">✅ Resolver</button>
+              <button type="button" onclick="cerrarModalCentrado('modalResolver')" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Falsa Alarma -->
+    <div id="modalFalsaAlarma" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🚫 Marcar como Falsa Alarma</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalFalsaAlarma')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formFalsaAlarma">
+            <input type="hidden" id="alertaFalsaId">
+            <div class="form-group">
+              <label for="motivoFalsa">Motivo:</label>
+              <textarea id="motivoFalsa" rows="4" placeholder="Ej: Movimiento normal, error del sistema, prueba..." required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarFalsaAlarma()" class="btn btn-danger">🚫 Marcar como Falsa</button>
+              <button type="button" onclick="cerrarModalCentrado('modalFalsaAlarma')" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Escalar -->
+    <div id="modalEscalar" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>⚡ Escalar Alerta a Crítica</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalEscalar')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formEscalar">
+            <input type="hidden" id="alertaEscalarId">
+            <div class="form-group">
+              <label for="motivoEscalar">Motivo para escalar:</label>
+              <textarea id="motivoEscalar" rows="4" placeholder="¿Por qué necesita escalar esta alerta a crítica?" required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarEscalacion()" class="btn btn-escalar">⚡ Escalar a Crítica</button>
+              <button type="button" onclick="cerrarModalCentrado('modalEscalar')" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Reasignar -->
+    <div id="modalReasignar" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🔄 Reasignar Alerta</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalReasignar')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formReasignar">
+            <input type="hidden" id="alertaReasignarId">
+            <div class="form-group">
+              <label for="nuevoResponsable">Nuevo Responsable:</label>
+              <select id="nuevoResponsable" required>
+                <option value="">Cargando usuarios...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="motivoReasignar">Motivo:</label>
+              <textarea id="motivoReasignar" rows="3" placeholder="¿Por qué necesita reasignar esta alerta?" required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarReasignacion()" class="btn btn-reasignar">🔄 Reasignar</button>
+              <button type="button" onclick="cerrarModalCentrado('modalReasignar')" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Escalar a Admin -->
+    <div id="modalEscalarAdmin" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🆘 Escalar al Administrador</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalEscalarAdmin')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formEscalarAdmin">
+            <input type="hidden" id="alertaEscalarAdminId">
+            <div class="form-group">
+              <label for="motivoEscalarAdmin">Motivo:</label>
+              <textarea id="motivoEscalarAdmin" rows="4" placeholder="¿Por qué necesita escalar esta alerta al administrador?" required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarEscalacionAdmin()" class="btn btn-escalar-operador">🆘 Escalar a Admin</button>
+              <button type="button" onclick="cerrarModalCentrado('modalEscalarAdmin')" class="btn btn-secondary">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Historial -->
+    <div id="modalHistorial" class="modal">
+      <div class="modal-content" style="width: 600px; max-height: 80vh;">
+        <div class="modal-header">
+          <h3>📋 Historial de Alerta #<span id="historialAlertaId"></span></h3>
+          <span class="close" onclick="cerrarModalCentrado('modalHistorial')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <pre id="contenidoHistorial" style="background: #f5f5f5; padding: 15px; border-radius: 5px; max-height: 60vh; overflow-y: auto; white-space: pre-wrap; font-family: monospace;"></pre>
+        </div>
+      </div>
+    </div>
+
     <!-- JavaScript -->
     <script>
+
+      if (typeof abrirModalCentrado !== 'function') {
+    function abrirModalCentrado(modalId) {
+        const modal = document.getElementById(modalId);
+        const overlay = document.getElementById('modalOverlay');
+        
+        if (!modal || !overlay) return;
+        
+        modal.style.cssText = `
+            display: block;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        `;
+        
+        overlay.style.cssText = `
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+        `;
+        
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+if (typeof cerrarModalCentrado !== 'function') {
+    function cerrarModalCentrado(modalId) {
+        const modal = document.getElementById(modalId);
+        const overlay = document.getElementById('modalOverlay');
+        
+        if (modal) modal.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
+        
+        document.body.style.overflow = 'auto';
+        
+        const form = document.querySelector(`#${modalId} form`);
+        if (form) form.reset();
+    }
+}
+
+// Función para cerrar desde overlay
+function cerrarModalDesdeOverlay() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+    
+    const overlay = document.getElementById('modalOverlay');
+    if (overlay) overlay.style.display = 'none';
+    
+    document.body.style.overflow = 'auto';
+}
+
+      // Variables globales
+      let alertasActuales = [];
+
       // Cargar alertas al iniciar
       document.addEventListener('DOMContentLoaded', function() {
         cargarAlertas();
@@ -186,11 +478,14 @@
       async function cargarAlertas() {
         try {
           const response = await fetch('/api/alertas');
-          const alertas = await response.json();
-          actualizarTabla(alertas);
-          actualizarMetricas(alertas);
+          if (!response.ok) throw new Error('Error al cargar alertas');
+          
+          alertasActuales = await response.json();
+          actualizarTabla(alertasActuales);
+          actualizarMetricas(alertasActuales);
         } catch (error) {
           console.error('Error cargando alertas:', error);
+          mostrarError('No se pudieron cargar las alertas');
         }
       }
 
@@ -200,33 +495,86 @@
         tbody.innerHTML = '';
 
         alertas.forEach(alerta => {
-          const row = `
-            <tr>
-              <td>${alerta.idAlerta}</td>
-              <td>${new Date(alerta.fechaAlerta).toLocaleString()}</td>
-              <td>${alerta.tipoAlerta}</td>
-              <td>
-                <span class="badge criticidad-${alerta.nivelCriticidad ? alerta.nivelCriticidad.toLowerCase() : 'media'}">
-                  ${alerta.nivelCriticidad || 'MEDIA'}
-                </span>
-              </td>
-              <td>
-                <span class="badge estado-${alerta.estadoAlerta ? alerta.estadoAlerta.toLowerCase() : 'pendiente'}">
-                  ${alerta.estadoAlerta || 'PENDIENTE'}
-                </span>
-              </td>
-              <td>${alerta.usuarioResponsable ? alerta.usuarioResponsable.nombre : 'Sin asignar'}</td>
-              <td>
-                <button class="btn btn-primary" onclick="verDetalleAlerta(${alerta.idAlerta})">👁️ Ver</button>
-                <button class="btn btn-warning" onclick="asignarmeAlerta(${alerta.idAlerta})">👤 Asignarme</button>
-                <button class="btn btn-success" onclick="resolverAlerta(${alerta.idAlerta})">✅ Resolver</button>
-              </td>
-            </tr>
+          const row = document.createElement('tr');
+          
+          // Determinar clase para falsa alarma
+          const esFalsa = alerta.esFalsaAlarma ? ' (Falsa)' : '';
+          
+          row.innerHTML = `
+            <td>${alerta.idAlerta}</td>
+            <td>${new Date(alerta.fechaAlerta).toLocaleString()}</td>
+            <td>${alerta.tipoAlerta}</td>
+            <td>
+              <span class="badge criticidad-${alerta.nivelCriticidad ? alerta.nivelCriticidad.toLowerCase() : 'media'}">
+                ${alerta.nivelCriticidad || 'MEDIA'}
+              </span>
+            </td>
+            <td>
+              <span class="badge estado-${alerta.estadoAlerta ? alerta.estadoAlerta.toLowerCase() : 'pendiente'}">
+                ${alerta.estadoAlerta || 'PENDIENTE'}${esFalsa}
+              </span>
+            </td>
+            <td>${alerta.usuarioResponsable ? alerta.usuarioResponsable.nombre : 'Sin asignar'}</td>
+            <td>
+              <div class="acciones-container">
+                ${generarBotonesAlerta(alerta)}
+              </div>
+            </td>
           `;
-          tbody.innerHTML += row;
+          
+          tbody.appendChild(row);
         });
       }
-     
+
+      // Función para generar botones según rol y estado
+      function generarBotonesAlerta(alerta) {
+        let botones = '';
+        const estado = alerta.estadoAlerta;
+        const esAdmin = window.esAdministrador ? window.esAdministrador() : false;
+        const esOperador = window.esOperador ? window.esOperador() : false;
+        
+        // Botón Ver (siempre visible)
+        botones += `<button class="btn btn-primary" onclick="verDetalleAlerta(${alerta.idAlerta})">👁️ Ver</button>`;
+        
+        // Botón Asignarme (solo para alertas pendientes)
+        if (estado === 'PENDIENTE') {
+          botones += `<button class="btn btn-warning" onclick="asignarmeAlerta(${alerta.idAlerta})">👤 Asignarme</button>`;
+        }
+        
+        // Botón Resolver (para alertas en proceso o pendientes)
+        if (estado === 'EN_PROCESO' || estado === 'PENDIENTE') {
+          botones += `<button class="btn btn-success" onclick="abrirModalResolver(${alerta.idAlerta})">✅ Resolver</button>`;
+        }
+        
+        // Botón Historial (siempre disponible)
+        botones += `<button class="btn btn-historial" onclick="verHistorial(${alerta.idAlerta})">📋 Historial</button>`;
+        
+        // Botón Falsa Alarma (solo si no está resuelta ni descartada)
+        if (estado !== 'RESUELTA' && estado !== 'DESCARTADA') {
+          botones += `<button class="btn btn-falsa" onclick="abrirModalFalsaAlarma(${alerta.idAlerta})">🚫 Falsa</button>`;
+        }
+        
+        // Botones solo para ADMINISTRADOR
+        if (esAdmin) {
+          // Botón Escalar (solo si no es crítica)
+          if (alerta.nivelCriticidad !== 'CRITICA') {
+            botones += `<button class="btn btn-escalar" onclick="abrirModalEscalar(${alerta.idAlerta})">⚡ Escalar</button>`;
+          }
+          
+          // Botón Reasignar
+          botones += `<button class="btn btn-reasignar" onclick="abrirModalReasignar(${alerta.idAlerta})">🔄 Reasignar</button>`;
+          
+          // Botón Exportar
+          botones += `<button class="btn btn-exportar" onclick="exportarAlerta(${alerta.idAlerta})">📄 Exportar</button>`;
+        }
+        
+        // Botón Escalar a Admin para OPERADORES (solo alertas en proceso)
+        if (esOperador && estado === 'EN_PROCESO') {
+          botones += `<button class="btn btn-escalar-operador" onclick="abrirModalEscalarAdmin(${alerta.idAlerta})">🆘 Escalar</button>`;
+        }
+        
+        return botones;
+      }
 
       // Función para actualizar métricas
       function actualizarMetricas(alertas) {
@@ -239,44 +587,35 @@
           alertas.filter(a => a.estadoAlerta === 'RESUELTA').length;
       }
 
-      // Funciones de filtrado - ACTUALIZAR
-async function filtrarAlertas() {
-    const estado = document.getElementById('filtroEstado').value;
-    const nivelCriticidad = document.getElementById('filtroCriticidad').value;
-    
-    const filtros = {
-        estado: estado,
-        nivelCriticidad: nivelCriticidad
-    };
+      // Funciones de filtrado
+      async function filtrarAlertas() {
+        const estado = document.getElementById('filtroEstado').value;
+        const nivelCriticidad = document.getElementById('filtroCriticidad').value;
+        
+        const filtros = {
+          estado: estado,
+          nivelCriticidad: nivelCriticidad
+        };
 
-    try {
-        const response = await fetch('/api/alertas/filtrar', {
+        try {
+          const response = await fetch('/api/alertas/filtrar', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify(filtros)
-        });
-        
-        if (response.ok) {
+          });
+          
+          if (response.ok) {
             const alertasFiltradas = await response.json();
             actualizarTabla(alertasFiltradas);
             actualizarMetricas(alertasFiltradas);
-        } else {
-            // Si falla el filtrado, cargar todas
-            cargarAlertas();
+          }
+        } catch (error) {
+          console.error('Error filtrando alertas:', error);
+          mostrarError('Error al filtrar alertas');
         }
-    } catch (error) {
-        console.error('Error filtrando alertas:', error);
-        cargarAlertas();
-    }
-}
-
-function limpiarFiltros() {
-    document.getElementById('filtroEstado').value = '';
-    document.getElementById('filtroCriticidad').value = '';
-    cargarAlertas();
-}
+      }
 
       function limpiarFiltros() {
         document.getElementById('filtroEstado').value = '';
@@ -284,40 +623,324 @@ function limpiarFiltros() {
         cargarAlertas();
       }
 
-      // Funciones de acciones
-      async function verDetalleAlerta(idAlerta) {
-    try {
-        const response = await fetch(`/api/alertas/${idAlerta}`);
-        const alerta = await response.json();
+      // Funciones para los nuevos botones
+
+      // 1. Ver Historial
+      async function verHistorial(idAlerta) {
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/historial`);
+          if (response.ok) {
+            const historial = await response.text();
+            document.getElementById('historialAlertaId').textContent = idAlerta;
+            document.getElementById('contenidoHistorial').textContent = 
+              historial || 'No hay historial disponible para esta alerta.';
+            abrirModalCentrado('modalHistorial');
+          }
+        } catch (error) {
+          console.error('Error cargando historial:', error);
+          mostrarError('Error al cargar el historial');
+        }
+      }
+
+      // 2. Marcar como Falsa Alarma
+      function abrirModalFalsaAlarma(idAlerta) {
+        document.getElementById('alertaFalsaId').value = idAlerta;
+        abrirModalCentrado('modalFalsaAlarma');
+      }
+
+      async function confirmarFalsaAlarma() {
+        const idAlerta = document.getElementById('alertaFalsaId').value;
+        const motivo = document.getElementById('motivoFalsa').value;
         
-        let detalle = `
-🚨 DETALLE DE ALERTA #${alerta.idAlerta}
+        if (!motivo.trim()) {
+          mostrarError('Por favor indique el motivo');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/marcar-falsa`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo: motivo })
+          });
+          
+          if (response.ok) {
+            mostrarExito('Alerta marcada como falsa alarma');
+            cerrarModalCentrado('modalFalsaAlarma');
+            cargarAlertas();
+          } else if (response.status === 403) {
+            mostrarError('No tiene permisos para esta acción');
+          }
+        } catch (error) {
+          console.error('Error marcando falsa alarma:', error);
+          mostrarError('Error al marcar como falsa alarma');
+        }
+      }
+
+      // 3. Resolver con Observación
+      function abrirModalResolver(idAlerta) {
+        document.getElementById('alertaResolverId').value = idAlerta;
+        document.getElementById('accionesTomadas').value = '';
+        document.getElementById('observacionesResolucion').value = '';
+        abrirModalCentrado('modalResolver');
+      }
+
+      async function confirmarResolucion() {
+        const idAlerta = document.getElementById('alertaResolverId').value;
+        const acciones = document.getElementById('accionesTomadas').value;
+        const observaciones = document.getElementById('observacionesResolucion').value;
+        
+        if (!acciones.trim() || !observaciones.trim()) {
+          mostrarError('Por favor complete todos los campos');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/resolver-con-observacion`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              accionesTomadas: acciones,
+              observaciones: observaciones
+            })
+          });
+          
+          if (response.ok) {
+            mostrarExito('Alerta resuelta correctamente');
+            cerrarModalCentrado('modalResolver');
+            cargarAlertas();
+          } else if (response.status === 400) {
+            mostrarError('Las observaciones son obligatorias');
+          }
+        } catch (error) {
+          console.error('Error resolviendo alerta:', error);
+          mostrarError('Error al resolver la alerta');
+        }
+      }
+
+      // 4. Escalar Alerta (solo admin)
+      function abrirModalEscalar(idAlerta) {
+        if (!window.esAdministrador || !window.esAdministrador()) {
+          mostrarError('Solo los administradores pueden escalar alertas');
+          return;
+        }
+        document.getElementById('alertaEscalarId').value = idAlerta;
+        document.getElementById('motivoEscalar').value = '';
+        abrirModalCentrado('modalEscalar');
+      }
+
+      async function confirmarEscalacion() {
+        const idAlerta = document.getElementById('alertaEscalarId').value;
+        const motivo = document.getElementById('motivoEscalar').value;
+        
+        if (!motivo.trim()) {
+          mostrarError('Por favor indique el motivo');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/escalar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo: motivo })
+          });
+          
+          if (response.ok) {
+            mostrarExito('Alerta escalada a crítica');
+            cerrarModalCentrado('modalEscalar');
+            cargarAlertas();
+          } else if (response.status === 403) {
+            mostrarError('No tiene permisos para escalar alertas');
+          }
+        } catch (error) {
+          console.error('Error escalando alerta:', error);
+          mostrarError('Error al escalar la alerta');
+        }
+      }
+
+      // 5. Reasignar Alerta (solo admin)
+      async function abrirModalReasignar(idAlerta) {
+        if (!window.esAdministrador || !window.esAdministrador()) {
+          mostrarError('Solo los administradores pueden reasignar alertas');
+          return;
+        }
+        
+        document.getElementById('alertaReasignarId').value = idAlerta;
+        
+        try {
+          const response = await fetch('/api/alertas/usuarios-activos');
+          if (response.ok) {
+            const usuarios = await response.json();
+            const select = document.getElementById('nuevoResponsable');
+            select.innerHTML = '<option value="">Seleccionar usuario...</option>';
+            
+            usuarios.forEach(usuario => {
+              const option = document.createElement('option');
+              option.value = usuario.idUsuario;
+              option.textContent = `${usuario.nombre} (${usuario.rol})`;
+              select.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error('Error cargando usuarios:', error);
+        }
+        
+        abrirModalCentrado('modalReasignar');
+      }
+
+      async function confirmarReasignacion() {
+        const idAlerta = document.getElementById('alertaReasignarId').value;
+        const idNuevoResponsable = document.getElementById('nuevoResponsable').value;
+        const motivo = document.getElementById('motivoReasignar').value;
+        
+        if (!idNuevoResponsable || !motivo.trim()) {
+          mostrarError('Por favor complete todos los campos');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/reasignar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              idNuevoResponsable: parseInt(idNuevoResponsable),
+              motivo: motivo
+            })
+          });
+          
+          if (response.ok) {
+            mostrarExito('Alerta reasignada correctamente');
+            cerrarModalCentrado('modalReasignar');
+            cargarAlertas();
+          } else if (response.status === 403) {
+            mostrarError('No tiene permisos para reasignar alertas');
+          }
+        } catch (error) {
+          console.error('Error reasignando alerta:', error);
+          mostrarError('Error al reasignar la alerta');
+        }
+      }
+
+      // 6. Exportar Alerta (solo admin)
+      async function exportarAlerta(idAlerta) {
+        if (!window.esAdministrador || !window.esAdministrador()) {
+          mostrarError('Solo los administradores pueden exportar alertas');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/exportar`);
+          if (response.ok) {
+            const reporte = await response.text();
+            
+            // Abrir en nueva ventana
+            const ventana = window.open('', '_blank');
+            ventana.document.write(reporte);
+            ventana.document.close();
+            
+            // Opción para imprimir
+            setTimeout(() => {
+              if (confirm('¿Desea imprimir el reporte?')) {
+                ventana.print();
+              }
+            }, 500);
+          } else if (response.status === 403) {
+            mostrarError('No tiene permisos para exportar alertas');
+          }
+        } catch (error) {
+          console.error('Error exportando alerta:', error);
+          mostrarError('Error al exportar la alerta');
+        }
+      }
+
+      // 7. Escalar a Admin (para operadores)
+      function abrirModalEscalarAdmin(idAlerta) {
+        document.getElementById('alertaEscalarAdminId').value = idAlerta;
+        document.getElementById('motivoEscalarAdmin').value = '';
+        abrirModalCentrado('modalEscalarAdmin');
+      }
+
+      async function confirmarEscalacionAdmin() {
+        const idAlerta = document.getElementById('alertaEscalarAdminId').value;
+        const motivo = document.getElementById('motivoEscalarAdmin').value;
+        
+        if (!motivo.trim()) {
+          mostrarError('Por favor indique el motivo');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}/escalar-a-admin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo: motivo })
+          });
+          
+          if (response.ok) {
+            mostrarExito('Alerta escalada al administrador');
+            cerrarModalCentrado('modalEscalarAdmin');
+            cargarAlertas();
+          }
+        } catch (error) {
+          console.error('Error escalando a admin:', error);
+          mostrarError('Error al escalar la alerta');
+        }
+      }
+
+      
+
+      function mostrarError(mensaje) {
+        alert('❌ ' + mensaje);
+      }
+
+      function mostrarExito(mensaje) {
+        alert('✅ ' + mensaje);
+      }
+
+      // Cerrar modal al hacer clic fuera
+      window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        }
+      }
+
+      // Funciones existentes (mantener compatibilidad)
+      async function verDetalleAlerta(idAlerta) {
+        try {
+          const response = await fetch(`/api/alertas/${idAlerta}`);
+          const alerta = await response.json();
+          
+          let detalle = `🚨 DETALLE DE ALERTA #${alerta.idAlerta}
 
 📅 Fecha: ${new Date(alerta.fechaAlerta).toLocaleString()}
 📋 Tipo: ${alerta.tipoAlerta}
 ⚠️  Nivel: ${alerta.nivelCriticidad}
 📊 Estado: ${alerta.estadoAlerta}
+🚫 Falsa Alarma: ${alerta.esFalsaAlarma ? 'Sí' : 'No'}
 📝 Descripción: ${alerta.descripcion}
 👤 Responsable: ${alerta.usuarioResponsable ? alerta.usuarioResponsable.nombre : 'Sin asignar'}
 ✅ Acciones: ${alerta.accionesTomadas || 'No especificadas'}
-`;
+📋 Observaciones: ${alerta.observacionesResolucion || 'No especificadas'}`;
 
-        if (alerta.deteccion) {
+          if (alerta.deteccion) {
             detalle += `
+
 🔍 INFORMACIÓN DE DETECCIÓN:
    - Persona: ${alerta.deteccion.persona ? alerta.deteccion.persona.nombre : 'Desconocido'}
    - Tipo: ${alerta.deteccion.tipoDeteccion}
    - Cámara: ${alerta.deteccion.camara ? alerta.deteccion.camara.nombreCamara : 'No especificada'}
-   - Resultado: ${alerta.deteccion.resultado || 'N/A'}
-`;
-        }
+   - Resultado: ${alerta.deteccion.resultado || 'N/A'}`;
+          }
 
-        alert(detalle);
-    } catch (error) {
-        console.error('Error cargando detalle:', error);
-        alert('Error al cargar los detalles de la alerta');
-    }
-}
+          alert(detalle);
+        } catch (error) {
+          console.error('Error cargando detalle:', error);
+          mostrarError('Error al cargar los detalles de la alerta');
+        }
+      }
 
       async function asignarmeAlerta(idAlerta) {
         try {
@@ -327,33 +950,20 @@ function limpiarFiltros() {
           });
           
           if (response.ok) {
-            alert('Alerta asignada correctamente');
+            mostrarExito('Alerta asignada correctamente');
             cargarAlertas();
           }
         } catch (error) {
           console.error('Error asignando alerta:', error);
+          mostrarError('Error al asignar la alerta');
         }
       }
 
+      // Reemplazar función resolver antigua por la nueva
       async function resolverAlerta(idAlerta) {
-        const acciones = prompt('Describe las acciones tomadas:');
-        if (acciones) {
-          try {
-            const response = await fetch(`/api/alertas/${idAlerta}/resolver`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ accionesTomadas: acciones })
-            });
-            
-            if (response.ok) {
-              alert('Alerta resuelta correctamente');
-              cargarAlertas();
-            }
-          } catch (error) {
-            console.error('Error resolviendo alerta:', error);
-          }
-        }
+        abrirModalResolver(idAlerta);
       }
     </script>
+    <div id="modalOverlay" class="modal-overlay" onclick="cerrarModalDesdeOverlay()"></div>
 </body>
 </html>

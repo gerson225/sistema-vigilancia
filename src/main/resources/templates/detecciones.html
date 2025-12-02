@@ -2,12 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Detecciones</title>
+  <title>Panel de Detecciones - SIVI</title>
   <link rel="stylesheet" href="/css/layout.css">
   <style>
-    /* Elimina TODOS los estilos del body, sidebar, main-content */
-    /* Usa solo estilos específicos para esta página */
-    
+    /* Estilos base */
     h1 {
       color: #2c3e50;
       margin-bottom: 10px;
@@ -24,6 +22,7 @@
       padding: 8px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
     
     .metricas {
@@ -67,6 +66,7 @@
       padding: 10px;
       border-bottom: 1px solid #eee;
       text-align: center;
+      vertical-align: middle;
     }
     
     th {
@@ -74,59 +74,189 @@
       color: white;
     }
     
-    .acciones button {
-      margin: 0 5px;
-      padding: 6px 10px;
+    .acciones-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 6px 12px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 12px;
+      margin: 2px;
+      transition: all 0.3s;
     }
     
-    .ver-btn {
-      background-color: #2ecc71;
-      color: white;
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
     }
     
-    .alerta-btn {
-      background-color: #e74c3c;
+    .ver-btn { background-color: #2ecc71; color: white; }
+    .alerta-btn { background-color: #e74c3c; color: white; }
+    .eliminar-btn { background-color: #c0392b; color: white; }
+    .escalar-btn { background-color: #8b0000; color: white; }
+    .revisar-btn { background-color: #f39c12; color: white; }
+    .vincular-btn { background-color: #9b59b6; color: white; }
+    .formulario-btn { background-color: #1abc9c; color: white; }
+    
+    /* Modal para formularios */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 450px;
+      max-width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .modal-header h3 {
+      margin: 0;
+      color: #2c3e50;
+    }
+    
+    .close {
+      font-size: 24px;
+      cursor: pointer;
+      color: #aaa;
+    }
+    
+    .close:hover {
+      color: #000;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .btn-group button {
+      flex: 1;
+    }
+    
+    /* Estilos para imágenes */
+    .img-deteccion {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    
+    /* Badge para revisado */
+    .badge-revisado {
+      display: inline-block;
+      padding: 3px 8px;
+      background-color: #27ae60;
       color: white;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 5px;
+    }
+    
+    .badge-pendiente {
+      display: inline-block;
+      padding: 3px 8px;
+      background-color: #f39c12;
+      color: white;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 5px;
+    }
+    
+    /* Estilos para el select de personas */
+    .persona-option {
+      display: flex;
+      align-items: center;
+      padding: 5px;
+    }
+    
+    .persona-img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 10px;
+      object-fit: cover;
     }
   </style>
   <script src="/js/session-manager.js"></script>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-      
-    </div>
+    <!-- Sidebar se generará automáticamente -->
 
     <!-- Contenido principal -->
     <div class="main-content">
-      <h1>Panel de Detecciones</h1>
+      <h1>🔍 Panel de Detecciones</h1>
 
       <!-- Filtros -->
-<div class="filtros">
-    <input type="text" id="filtroPersona" placeholder="Buscar persona...">
-    <input type="date" id="filtroFecha">
-    <input type="time" id="filtroHora">
-    <select id="filtroCamara">
-        <option value="">Todas las cámaras</option>
-        <option value="7">Camara Plaza Norte</option>
-        <option value="8">Camara San Juan</option>
-        <option value="9">Camara Miraflores</option>
-        <option value="10">Camara Callao</option>
-        <option value="11">Camara Villa El Salvador</option>
-        <option value="12">Camara Ate</option>
-    </select>
-    <select id="filtroTipo">
-        <option value="">Todos los tipos</option>
-        <option value="FACIAL">Facial</option>
-        <option value="MARCHA">Marcha</option>
-    </select>
-    <button onclick="filtrarDetecciones()">Filtrar</button>
-    <button onclick="limpiarFiltros()">Limpiar</button>
-</div>
+      <div class="filtros">
+        <input type="text" id="filtroPersona" placeholder="Buscar persona...">
+        <input type="date" id="filtroFecha">
+        <select id="filtroCamara">
+          <option value="">Todas las cámaras</option>
+          <option value="7">Camara Plaza Norte</option>
+          <option value="8">Camara San Juan</option>
+          <option value="9">Camara Miraflores</option>
+          <option value="10">Camara Callao</option>
+          <option value="11">Camara Villa El Salvador</option>
+          <option value="12">Camara Ate</option>
+        </select>
+        <select id="filtroTipo">
+          <option value="">Todos los tipos</option>
+          <option value="FACIAL">Facial</option>
+          <option value="MARCHA">Marcha</option>
+        </select>
+        <button onclick="filtrarDetecciones()" class="btn ver-btn">Filtrar</button>
+        <button onclick="limpiarFiltros()" class="btn alerta-btn">Limpiar</button>
+      </div>
 
       <!-- Métricas -->
       <div class="metricas">
@@ -136,10 +266,10 @@
         </div>
         <div class="card-metrica">
           <h3>Cámaras activas</h3>
-          <p id="camarasActivas">0</p>
+          <p id="camarasActivas">6</p>
         </div>
         <div class="card-metrica">
-          <h3>Alertas</h3>
+          <h3>Alertas generadas</h3>
           <p id="alertasGeneradas">0</p>
         </div>
         <div class="card-metrica">
@@ -158,203 +288,878 @@
             <th>Tipo</th>
             <th>Cámara</th>
             <th>Persona</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tablaDetecciones">
           <!-- Se llenará dinámicamente -->
         </tbody>
       </table>
     </div>
 
-    <!-- Script para cargar detecciones -->
+    <!-- Modal para Ver Detalle -->
+    <div id="modalDetalle" class="modal" 
+     style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🔍 Detalle de Detección</h3>
+      <span class="close" onclick="cerrarModalCentrado('modalDetalle')">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div id="contenidoDetalle"></div>
+      <div class="btn-group" style="margin-top: 20px; text-align: center;">
+        <button type="button" onclick="cerrarModalCentrado('modalDetalle')" class="btn ver-btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    <!-- Modal para Eliminar Detección -->
+    <div id="modalEliminar" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🗑️ Eliminar Detección</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalEliminar')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="deteccionEliminarId" value="">
+          <p>¿Está seguro de eliminar esta detección? <strong>Esta acción no se puede deshacer.</strong></p>
+          <p id="infoEliminar"></p>
+          <div class="btn-group">
+            <button type="button" onclick="confirmarEliminacion()" class="btn eliminar-btn">🗑️ Sí, Eliminar</button>
+            <button type="button" onclick="cerrarModal('modalEliminar')" class="btn ver-btn">❌ Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Escalar a Alerta Crítica -->
+    <div id="modalEscalarDeteccion" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>⚡ Escalar a Alerta Crítica</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalEscalarDeteccion')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formEscalarDeteccion">
+            <input type="hidden" id="deteccionEscalarId">
+            <div class="form-group">
+              <label for="motivoEscalarDeteccion">Motivo:</label>
+              <textarea id="motivoEscalarDeteccion" rows="4" placeholder="¿Por qué necesita escalar esta detección a alerta crítica?" required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarEscalacionDeteccion()" class="btn escalar-btn">⚡ Escalar a Crítica</button>
+              <button type="button" onclick="cerrarModal('modalEscalarDeteccion')" class="btn alerta-btn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Marcar como Revisado -->
+    <div id="modalRevisar" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>✅ Marcar como Revisado</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalRevisar')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formRevisar">
+            <input type="hidden" id="deteccionRevisarId">
+            <div class="form-group">
+              <label for="observacionesRevisar">Observaciones:</label>
+              <textarea id="observacionesRevisar" rows="4" placeholder="Observaciones sobre la revisión..." required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarRevision()" class="btn revisar-btn">✅ Marcar como Revisado</button>
+              <button type="button" onclick="cerrarModal('modalRevisar')" class="btn alerta-btn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Vincular Persona -->
+    <div id="modalVincular" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>👤 Vincular Persona</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalVincular')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formVincular">
+            <input type="hidden" id="deteccionVincularId">
+            <div class="form-group">
+              <label for="personaSeleccionar">Seleccionar Persona:</label>
+              <select id="personaSeleccionar" required>
+                <option value="">Cargando personas...</option>
+              </select>
+            </div>
+            <div id="infoPersona" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;">
+              <p><strong>DNI:</strong> <span id="infoDni"></span></p>
+              <p><strong>Tipo:</strong> <span id="infoTipo"></span></p>
+              <p><strong>Estado:</strong> <span id="infoEstado"></span></p>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarVinculacion()" class="btn vincular-btn">👤 Vincular Persona</button>
+              <button type="button" onclick="cerrarModal('modalVincular')" class="btn alerta-btn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Generar Alerta con Formulario -->
+    <div id="modalGenerarAlerta" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🚨 Generar Alerta</h3>
+          <span class="close" onclick="cerrarModalCentrado('modalGenerarAlerta')">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="formGenerarAlerta">
+            <input type="hidden" id="deteccionAlertaId">
+            <div class="form-group">
+              <label for="tipoAlerta">Tipo de Alerta:</label>
+              <select id="tipoAlerta" required>
+                <option value="">Seleccionar tipo...</option>
+                <option value="ACCESO_NO_AUTORIZADO">Acceso no autorizado</option>
+                <option value="PERSONA_SOSPECHOSA">Persona sospechosa</option>
+                <option value="ZONA_RESTRINGIDA">Zona restringida</option>
+                <option value="COMPORTAMIENTO_ANORMAL">Comportamiento anormal</option>
+                <option value="OBJETO_SOSPECHOSO">Objeto sospechoso</option>
+                <option value="FUERA_HORARIO">Fuera de horario permitido</option>
+                <option value="VIOLENCIA">Posible acto violento</option>
+                <option value="INTRUSION">Intrusión en área segura</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="nivelCriticidadAlerta">Nivel de Criticidad:</label>
+              <select id="nivelCriticidadAlerta" required>
+                <option value="BAJA">Baja</option>
+                <option value="MEDIA" selected>Media</option>
+                <option value="ALTA">Alta</option>
+                <option value="CRITICA">Crítica</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="descripcionAlerta">Descripción:</label>
+              <textarea id="descripcionAlerta" rows="4" placeholder="Descripción detallada de la alerta..." required></textarea>
+            </div>
+            <div class="btn-group">
+              <button type="button" onclick="confirmarGeneracionAlerta()" class="btn formulario-btn">🚨 Generar Alerta</button>
+              <button type="button" onclick="cerrarModal('modalGenerarAlerta')" class="btn alerta-btn">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
     <script>
-      // Función para generar alerta
-      // Función para generar alerta
-function generarAlerta(idDeteccion) {
-    const alerta = {
-        idDeteccion: idDeteccion,
-        tipoAlerta: "GENERADA_DESDE_DETECCION",
-        descripcion: "Alerta generada automáticamente desde detección " + idDeteccion,
-        fechaAlerta: new Date().toISOString(),
-        idUsuario: 1
-    };
+      // Variables globales
+      let deteccionesActuales = [];
+      let personasDisponibles = [];
 
-    fetch("/api/alertas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(alerta)
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert("Alerta creada con ID: " + data.idAlerta);
-        const alertasGeneradas = document.getElementById("alertasGeneradas");
-        alertasGeneradas.textContent = parseInt(alertasGeneradas.textContent) + 1;
-    })
-    .catch(err => console.error("Error creando alerta:", err));
-}
+      // Cargar detecciones al iniciar
+      document.addEventListener('DOMContentLoaded', function() {
+        cargarDetecciones();
+        cargarTiposAlerta();
+      });
 
-// 🔥 FUNCIÓN PARA GENERAR SIDEBAR DINÁMICO SEGÚN EL ROL
+      // Función para cargar detecciones
+      async function cargarDetecciones() {
+        try {
+          const response = await fetch('/api/detecciones');
+          if (!response.ok) throw new Error('Error al cargar detecciones');
+          
+          deteccionesActuales = await response.json();
+          actualizarTabla(deteccionesActuales);
+          actualizarMetricas(deteccionesActuales);
+        } catch (error) {
+          console.error('Error cargando detecciones:', error);
+          mostrarError('No se pudieron cargar las detecciones');
+        }
+      }
 
+      // Función para actualizar la tabla
+      function actualizarTabla(detecciones) {
+        const tbody = document.getElementById('tablaDetecciones');
+        tbody.innerHTML = '';
 
-// Función para ver detalle
-function verDetalle(det) {
-    alert("Detalle de detección:\nID: " + det.idDeteccion +
-          "\nFecha: " + det.fechaHora +
-          "\nTipo: " + det.tipoDeteccion +
-          "\nResultado: " + (det.resultado || "N/A") +
-          "\nObservaciones: " + (det.observaciones || "N/A"));
-}
+        detecciones.forEach(det => {
+          const row = document.createElement('tr');
+          const esRevisado = det.revisado || false;
+          const tienePersona = det.persona && det.persona.nombre;
+          
+          row.innerHTML = `
+            <td>${det.idDeteccion}</td>
+            <td>${new Date(det.fechaHora).toLocaleString()}</td>
+            <td>
+              <img src="${det.imagenUrl || '/images/persona1.png'}" 
+                   alt="Imagen" 
+                   class="img-deteccion"
+                   onerror="this.src='/images/persona1.png'">
+            </td>
+            <td>${det.tipoDeteccion}</td>
+            <td>${det.camara?.nombreCamara || "-"}</td>
+            <td>${tienePersona ? det.persona.nombre : "Desconocido"}</td>
+            <td>
+              ${esRevisado ? 
+                '<span class="badge-revisado">✅ Revisado</span>' : 
+                '<span class="badge-pendiente">⏳ Pendiente</span>'
+              }
+            </td>
+            <td>
+              <div class="acciones-container">
+                ${generarBotonesDeteccion(det)}
+              </div>
+            </td>
+          `;
+          
+          tbody.appendChild(row);
+        });
+      }
 
-// Funciones para filtrado
-async function filtrarDetecciones() {
-    const filtros = {
-        persona: document.getElementById('filtroPersona').value,
-        fecha: document.getElementById('filtroFecha').value,
-        hora: document.getElementById('filtroHora').value,
-        camara: document.getElementById('filtroCamara').value,
-        tipo: document.getElementById('filtroTipo').value
-    };
+      // Función para generar botones según rol y estado
+      function generarBotonesDeteccion(deteccion) {
+        let botones = '';
+        const esAdmin = window.esAdministrador ? window.esAdministrador() : false;
+        const esRevisado = deteccion.revisado || false;
+        const tienePersona = deteccion.persona && deteccion.persona.nombre;
+        
+        // Botón Ver Detalle (siempre visible)
+        botones += `<button class="btn btn-small ver-btn" onclick="verDetalle(${deteccion.idDeteccion})">👁️ Ver</button>`;
 
-    try {
-        const response = await fetch('/api/detecciones/filtrar', {
+        // Botón Generar Alerta (siempre visible)
+        botones += `<button class="btn btn-small alerta-btn" onclick="abrirModalGenerarAlerta(${deteccion.idDeteccion})">🚨 Alerta</button>`;
+
+        // Botón Marcar como Revisado (solo si no está revisado)
+        if (!esRevisado) {
+          botones += `<button class="btn btn-small revisar-btn" onclick="abrirModalRevisar(${deteccion.idDeteccion})">✅ Revisar</button>`;
+        }
+        
+        // Botón Vincular Persona (solo si no tiene persona asignada)
+        if (!tienePersona) {
+          botones += `<button class="btn btn-small vincular-btn" onclick="abrirModalVincular(${deteccion.idDeteccion})">👤 Vincular</button>`;
+        }
+        
+        // Botones solo para ADMINISTRADOR
+        if (esAdmin) {
+          // Botón Eliminar
+          botones += `<button class="btn btn-small eliminar-btn" onclick="abrirModalEliminar(${deteccion.idDeteccion})">🗑️ Eliminar</button>`;
+          
+          // Botón Escalar a Crítica
+          botones += `<button class="btn btn-small escalar-btn" onclick="abrirModalEscalarDeteccion(${deteccion.idDeteccion})">⚡ Escalar</button>`;
+        }
+        
+        return botones;
+      }
+
+      // Función para actualizar métricas
+      function actualizarMetricas(detecciones) {
+        document.getElementById('totalDetecciones').textContent = detecciones.length;
+        document.getElementById('noIdentificados').textContent = 
+          detecciones.filter(d => !d.persona).length;
+        
+        // Contar alertas generadas desde detecciones
+        const alertasGeneradas = detecciones.filter(d => d.revisado).length;
+        document.getElementById('alertasGeneradas').textContent = alertasGeneradas;
+      }
+
+      // Funciones de filtrado
+      async function filtrarDetecciones() {
+        const filtros = {
+          persona: document.getElementById('filtroPersona').value,
+          fecha: document.getElementById('filtroFecha').value,
+          camara: document.getElementById('filtroCamara').value,
+          tipo: document.getElementById('filtroTipo').value
+        };
+
+        try {
+          const response = await fetch('/api/detecciones/filtrar', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify(filtros)
-        });
+          });
+          
+          if (response.ok) {
+            const deteccionesFiltradas = await response.json();
+            actualizarTabla(deteccionesFiltradas);
+            actualizarMetricas(deteccionesFiltradas);
+          } else {
+            console.log('Endpoint de filtrado no disponible, usando filtro local');
+            filtrarLocalmente(filtros);
+          }
+        } catch (error) {
+          console.error('Error filtrando detecciones:', error);
+          filtrarLocalmente(filtros);
+        }
+      }
+
+      function filtrarLocalmente(filtros) {
+        let filtradas = deteccionesActuales;
         
-        // Si el endpoint no existe, cargar todas las detecciones
-        if (!response.ok) {
-            console.log('Endpoint de filtrado no disponible, cargando todas las detecciones');
-            cargarDetecciones();
-            return;
+        if (filtros.persona) {
+          filtradas = filtradas.filter(d => 
+            d.persona?.nombre?.toLowerCase().includes(filtros.persona.toLowerCase()) || false
+          );
         }
         
-        const data = await response.json();
-        console.log('Datos recibidos del filtrado:', data);
-        actualizarTabla(data);
-    } catch (error) {
-        console.error('Error filtrando detecciones:', error);
-        // Si hay error, cargar todas las detecciones
+        if (filtros.fecha) {
+          filtradas = filtradas.filter(d => 
+            new Date(d.fechaHora).toLocaleDateString() === new Date(filtros.fecha).toLocaleDateString()
+          );
+        }
+        
+        if (filtros.camara) {
+          filtradas = filtradas.filter(d => 
+            d.camara?.idCamara?.toString() === filtros.camara
+          );
+        }
+        
+        if (filtros.tipo) {
+          filtradas = filtradas.filter(d => 
+            d.tipoDeteccion === filtros.tipo
+          );
+        }
+        
+        actualizarTabla(filtradas);
+        actualizarMetricas(filtradas);
+      }
+
+      function limpiarFiltros() {
+        document.getElementById('filtroPersona').value = '';
+        document.getElementById('filtroFecha').value = '';
+        document.getElementById('filtroCamara').value = '';
+        document.getElementById('filtroTipo').value = '';
         cargarDetecciones();
+      }
+
+      // Funciones para los nuevos botones
+
+      // 1. Ver Detalle (mejorado)
+      async function verDetalle(idDeteccion) {
+    try {
+        const deteccion = deteccionesActuales.find(d => d.idDeteccion === idDeteccion);
+        if (!deteccion) return;
+        
+        let detalle = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="${deteccion.imagenUrl || '/images/persona1.png'}" 
+                     alt="Imagen" 
+                     style="max-width: 200px; border-radius: 8px; border: 2px solid #ddd;"
+                     onerror="this.src='/images/persona1.png'">
+            </div>
+            
+            <h4>📋 Información General</h4>
+            <p><strong>ID:</strong> ${deteccion.idDeteccion}</p>
+            <p><strong>Fecha y Hora:</strong> ${new Date(deteccion.fechaHora).toLocaleString()}</p>
+            <p><strong>Tipo de Detección:</strong> ${deteccion.tipoDeteccion}</p>
+            <p><strong>Resultado:</strong> ${deteccion.resultado || 'N/A'}</p>
+            <p><strong>Estado:</strong> ${deteccion.revisado ? '✅ Revisado' : '⏳ Pendiente'}</p>
+            
+            <h4>📍 Ubicación</h4>
+            <p><strong>Cámara:</strong> ${deteccion.camara?.nombreCamara || 'No especificada'}</p>
+            
+            <h4>👤 Persona Detectada</h4>
+            <p><strong>Nombre:</strong> ${deteccion.persona?.nombre || 'Desconocido'}</p>
+            ${deteccion.persona?.dni ? `<p><strong>DNI:</strong> ${deteccion.persona.dni}</p>` : ''}
+            
+            <h4>📝 Observaciones</h4>
+            <p>${deteccion.observaciones || 'Sin observaciones'}</p>
+        `;
+        
+        document.getElementById('contenidoDetalle').innerHTML = detalle;
+        
+        // USAR LA NUEVA FUNCIÓN abrirModalCentrado
+        abrirModalCentrado('modalDetalle');
+        
+    } catch (error) {
+        console.error('Error mostrando detalle:', error);
+        mostrarError('Error al mostrar el detalle');
     }
 }
 
-function limpiarFiltros() {
-    document.getElementById('filtroPersona').value = '';
-    document.getElementById('filtroFecha').value = '';
-    document.getElementById('filtroHora').value = '';
-    document.getElementById('filtroCamara').value = '';
-    document.getElementById('filtroTipo').value = '';
+function abrirModalCentrado(modalId) {
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById('modalOverlay');
     
-    cargarDetecciones();
+    if (!modal || !overlay) {
+        console.error('Modal o overlay no encontrado');
+        return;
+    }
+    
+    // 1. Resetear estilos del modal
+    modal.style.cssText = `
+        display: block;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    `;
+    
+    // 2. Mostrar overlay
+    overlay.style.cssText = `
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 999;
+    `;
+    
+    // 3. Prevenir scroll en el fondo
+    document.body.style.overflow = 'hidden';
 }
 
-function actualizarTabla(detecciones) {
-    console.log('🔄 Actualizando tabla con:', detecciones);
-    
-    const tbody = document.querySelector("table tbody");
-    tbody.innerHTML = "";
-
-    console.log('📊 Total detecciones a mostrar:', detecciones.length);
-
-    // Métricas dinámicas
-    document.getElementById("totalDetecciones").textContent = detecciones.length;
-    document.getElementById("noIdentificados").textContent = detecciones.filter(d => !d.persona).length;
-
-    detecciones.forEach((det, index) => {
-        console.log(`  📝 Procesando detección ${index + 1}:`, det);
+      // 2. Eliminar Detección (solo admin)
+      function abrirModalEliminar(idDeteccion) {
+        if (!window.esAdministrador || !window.esAdministrador()) {
+          mostrarError('Solo los administradores pueden eliminar detecciones');
+          return;
+        }
         
-        const row = `
-            <tr>
-                <td>${det.idDeteccion}</td>
-                <td>${det.fechaHora}</td>
-                <td><img src="${det.imagenUrl || '/images/persona1.png'}" alt="img" width="40" onerror="this.src='/images/persona1.png'"></td>
-                <td>${det.tipoDeteccion}</td>
-                <td>${det.camara?.nombreCamara || "-"}</td>
-                <td>${det.persona?.nombre || "Desconocido"}</td>
-                <td class="acciones">
-                    <button class="ver-btn" onclick='verDetalle(${JSON.stringify(det).replace(/'/g, "&#39;")})'>Ver detalle</button>
-                    <button class="alerta-btn" onclick="generarAlerta(${det.idDeteccion})">Generar alerta</button>
-                </td>
-            </tr>`;
-        tbody.innerHTML += row;
+        const deteccion = deteccionesActuales.find(d => d.idDeteccion === idDeteccion);
+        if (!deteccion) return;
+        
+        document.getElementById('deteccionEliminarId').value = idDeteccion;
+        document.getElementById('infoEliminar').innerHTML = `
+          Detección #${idDeteccion} - ${new Date(deteccion.fechaHora).toLocaleString()}<br>
+          Persona: ${deteccion.persona?.nombre || 'Desconocido'} - Cámara: ${deteccion.camara?.nombreCamara || 'N/A'}
+        `;
+        
+        abrirModalCentrado('modalEliminar');
+      }
+
+      async function confirmarEliminacion() {
+        const idDeteccion = document.getElementById('deteccionEliminarId').value;
+        
+        try {
+          const response = await fetch(`/api/detecciones/${idDeteccion}`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            mostrarExito('Detección eliminada correctamente');
+            cerrarModal('modalEliminar');
+            cargarDetecciones();
+          } else if (response.status === 403) {
+            mostrarError('No tiene permisos para eliminar detecciones');
+          } else {
+            const error = await response.text();
+            mostrarError(error || 'Error al eliminar la detección');
+          }
+        } catch (error) {
+          console.error('Error eliminando detección:', error);
+          mostrarError('Error al eliminar la detección');
+        }
+      }
+
+      // 3. Escalar a Alerta Crítica (solo admin)
+      function abrirModalEscalarDeteccion(idDeteccion) {
+        if (!window.esAdministrador || !window.esAdministrador()) {
+          mostrarError('Solo los administradores pueden escalar detecciones');
+          return;
+        }
+        
+        document.getElementById('deteccionEscalarId').value = idDeteccion;
+        document.getElementById('motivoEscalarDeteccion').value = '';
+        abrirModalCentrado('modalEscalarDeteccion');
+      }
+
+      async function confirmarEscalacionDeteccion() {
+        const idDeteccion = document.getElementById('deteccionEscalarId').value;
+        const motivo = document.getElementById('motivoEscalarDeteccion').value;
+        
+        if (!motivo.trim()) {
+          mostrarError('Por favor indique el motivo');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/detecciones/${idDeteccion}/escalar-a-alerta`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo: motivo })
+          });
+          
+          if (response.ok) {
+            const alerta = await response.json();
+            mostrarExito(`Alerta crítica #${alerta.idAlerta} creada correctamente`);
+            cerrarModal('modalEscalarDeteccion');
+            cargarDetecciones();
+          } else if (response.status === 403) {
+            mostrarError('No tiene permisos para escalar detecciones');
+          }
+        } catch (error) {
+          console.error('Error escalando detección:', error);
+          mostrarError('Error al escalar la detección');
+        }
+      }
+
+      // 4. Marcar como Revisado
+      function abrirModalRevisar(idDeteccion) {
+        document.getElementById('deteccionRevisarId').value = idDeteccion;
+        document.getElementById('observacionesRevisar').value = '';
+        abrirModalCentrado('modalRevisar');
+      }
+
+      async function confirmarRevision() {
+        const idDeteccion = document.getElementById('deteccionRevisarId').value;
+        const observaciones = document.getElementById('observacionesRevisar').value;
+        
+        if (!observaciones.trim()) {
+          mostrarError('Por favor ingrese observaciones');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/detecciones/${idDeteccion}/marcar-revisado`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              observaciones: observaciones,
+              idUsuario: window.obtenerIdUsuario ? window.obtenerIdUsuario() : null
+            })
+          });
+          
+          if (response.ok) {
+            mostrarExito('Detección marcada como revisada');
+            cerrarModal('modalRevisar');
+            cargarDetecciones();
+          }
+        } catch (error) {
+          console.error('Error marcando como revisado:', error);
+          mostrarError('Error al marcar como revisado');
+        }
+      }
+
+      // 5. Vincular Persona
+      async function abrirModalVincular(idDeteccion) {
+        document.getElementById('deteccionVincularId').value = idDeteccion;
+        
+        try {
+          // Cargar personas disponibles
+          const response = await fetch('/api/detecciones/personas');
+          if (response.ok) {
+            personasDisponibles = await response.json();
+            const select = document.getElementById('personaSeleccionar');
+            select.innerHTML = '<option value="">Seleccionar persona...</option>';
+            
+            personasDisponibles.forEach(persona => {
+              const option = document.createElement('option');
+              option.value = persona.idPersona;
+              option.textContent = `${persona.nombre} (${persona.dni}) - ${persona.tipoPersona}`;
+              select.appendChild(option);
+            });
+            
+            // Añadir evento para mostrar información de la persona seleccionada
+            select.addEventListener('change', function() {
+              mostrarInfoPersona(this.value);
+            });
+          }
+        } catch (error) {
+          console.error('Error cargando personas:', error);
+        }
+        
+        abrirModalCentrado('modalVincular');
+      }
+
+      function mostrarInfoPersona(idPersona) {
+        const persona = personasDisponibles.find(p => p.idPersona == idPersona);
+        const infoDiv = document.getElementById('infoPersona');
+        
+        if (persona) {
+          document.getElementById('infoDni').textContent = persona.dni;
+          document.getElementById('infoTipo').textContent = persona.tipoPersona;
+          document.getElementById('infoEstado').textContent = persona.estado;
+          infoDiv.style.display = 'block';
+        } else {
+          infoDiv.style.display = 'none';
+        }
+      }
+
+      async function confirmarVinculacion() {
+        const idDeteccion = document.getElementById('deteccionVincularId').value;
+        const idPersona = document.getElementById('personaSeleccionar').value;
+        
+        if (!idPersona) {
+          mostrarError('Por favor seleccione una persona');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/detecciones/${idDeteccion}/vincular-persona`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idPersona: parseInt(idPersona) })
+          });
+          
+          if (response.ok) {
+            const deteccionActualizada = await response.json();
+            mostrarExito(`Persona vinculada correctamente: ${deteccionActualizada.persona?.nombre}`);
+            cerrarModal('modalVincular');
+            cargarDetecciones();
+          }
+        } catch (error) {
+          console.error('Error vinculando persona:', error);
+          mostrarError('Error al vincular la persona');
+        }
+      }
+
+      // 6. Generar Alerta con Formulario
+      async function abrirModalGenerarAlerta(idDeteccion) {
+        document.getElementById('deteccionAlertaId').value = idDeteccion;
+        document.getElementById('descripcionAlerta').value = '';
+        abrirModalCentrado('modalGenerarAlerta');
+      }
+
+      async function confirmarGeneracionAlerta() {
+        const idDeteccion = document.getElementById('deteccionAlertaId').value;
+        const tipoAlerta = document.getElementById('tipoAlerta').value;
+        const nivelCriticidad = document.getElementById('nivelCriticidadAlerta').value;
+        const descripcion = document.getElementById('descripcionAlerta').value;
+        
+        if (!tipoAlerta || !descripcion.trim()) {
+          mostrarError('Por favor complete todos los campos');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/detecciones/${idDeteccion}/generar-alerta`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tipoAlerta: tipoAlerta,
+              descripcion: descripcion,
+              nivelCriticidad: nivelCriticidad,
+              idUsuario: window.obtenerIdUsuario ? window.obtenerIdUsuario() : null
+            })
+          });
+          
+          if (response.ok) {
+            const alerta = await response.json();
+            mostrarExito(`Alerta #${alerta.idAlerta} generada correctamente`);
+            cerrarModal('modalGenerarAlerta');
+            cargarDetecciones();
+            // Actualizar contador de alertas
+            const contador = document.getElementById('alertasGeneradas');
+            contador.textContent = parseInt(contador.textContent) + 1;
+          }
+        } catch (error) {
+          console.error('Error generando alerta:', error);
+          mostrarError('Error al generar la alerta');
+        }
+      }
+
+      // Cargar tipos de alerta disponibles
+      async function cargarTiposAlerta() {
+        try {
+          const response = await fetch('/api/detecciones/tipos-alerta');
+          if (response.ok) {
+            const tipos = await response.json();
+            const select = document.getElementById('tipoAlerta');
+            
+            // Limpiar opciones excepto la primera
+            while (select.options.length > 1) {
+              select.remove(1);
+            }
+            
+            // Añadir tipos
+            for (const [valor, texto] of Object.entries(tipos)) {
+              const option = document.createElement('option');
+              option.value = valor;
+              option.textContent = texto;
+              select.appendChild(option);
+            }
+          }
+        } catch (error) {
+          console.error('Error cargando tipos de alerta:', error);
+        }
+      }
+
+      // Funciones auxiliares
+      function abrirModal(modalId) {
+    // Ocultar cualquier otro modal abierto primero
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
     });
     
-    console.log('✅ Tabla actualizada. Filas en tbody:', tbody.children.length);
+    // Mostrar el modal solicitado
+    document.getElementById(modalId).style.display = 'block';
+    
+    // Mostrar overlay
+    document.getElementById('modalOverlay').style.display = 'block';
 }
-
-// Función para cargar todas las detecciones (sin filtros)
-async function cargarDetecciones() {
-    try {
-        console.log('🔍 Iniciando carga de detecciones...');
-        const response = await fetch("/api/detecciones");
-        console.log('📡 Response status:', response.status);
-        console.log('📡 Response ok:', response.ok);
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('✅ Datos crudos de API:', data);
-            console.log('📊 Número de detecciones recibidas:', data.length);
-            console.log('🔍 Detalle de cada detección:');
-            data.forEach((det, index) => {
-                console.log(`  ${index + 1}. ID: ${det.idDeteccion}, Persona: ${det.persona?.nombre || 'N/A'}, Cámara: ${det.camara?.nombreCamara || 'N/A'}`);
-            });
-            actualizarTabla(data);
-        } else {
-            console.error('❌ Error en response:', response.status, response.statusText);
-            // Usar datos de prueba
-            cargarDeteccionesPrueba();
-        }
-    } catch (error) {
-        console.error("🚨 Error cargando detecciones:", error);
-        cargarDeteccionesPrueba();
+function cerrarModalCentrado(modalId) {
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById('modalOverlay');
+    
+    if (modal) {
+        modal.style.display = 'none';
     }
-}
-function cargarDeteccionesPrueba() {
-    console.log('🔄 Cargando datos de prueba...');
-    const datosPrueba = [
-        {
-            idDeteccion: 4,
-            fechaHora: "2024-11-18T10:15:00",
-            imagenUrl: "/images/persona1.png",
-            tipoDeteccion: "FACIAL",
-            resultado: "Luis Perez",
-            observaciones: "Reconocido con alta confianza",
-            persona: { nombre: "Luis Perez" },
-            camara: { nombreCamara: "Camara Plaza Norte" }
-        },
-        {
-            idDeteccion: 5, 
-            fechaHora: "2024-11-18T10:20:00",
-            imagenUrl: "/images/persona2.png",
-            tipoDeteccion: "MARCHA",
-            resultado: "Carlos Ramirez", 
-            observaciones: "Movimiento sospechoso en pasillo",
-            persona: { nombre: "Carlos Ramirez" },
-            camara: { nombreCamara: "Camara Miraflores" }
-        },
-        {
-            idDeteccion: 6,
-            fechaHora: "2024-11-18T11:00:00", 
-            imagenUrl: "/images/persona3.png",
-            tipoDeteccion: "FACIAL",
-            resultado: "Desconocido",
-            observaciones: "No se pudo identificar",
-            persona: null,
-            camara: { nombreCamara: "Camara Ate" }
-        }
-    ];
-    console.log('✅ Datos de prueba cargados:', datosPrueba);
-    actualizarTabla(datosPrueba);
+    
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+    
+    // Restaurar scroll
+    document.body.style.overflow = 'auto';
+    
+    // Limpiar formularios si existen
+    const form = document.querySelector(`#${modalId} form`);
+    if (form) form.reset();
 }
 
-// Cargar detecciones cuando la página se carga
-document.addEventListener('DOMContentLoaded', function() {
-    cargarDetecciones();
-});
+// Cerrar modal haciendo clic en el overlay
+function cerrarModalDesdeOverlay() {
+    // Cerrar TODOS los modales
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+    
+    // Ocultar overlay
+    const overlay = document.getElementById('modalOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+    
+    // Restaurar scroll
+    document.body.style.overflow = 'auto';
+}
+
+      function cerrarModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    document.getElementById('modalOverlay').style.display = 'none';
+    
+    // Limpiar formularios (opcional)
+    const form = document.querySelector(`#${modalId} form`);
+    if (form) form.reset();
+}
+
+      function mostrarError(mensaje) {
+        alert('❌ ' + mensaje);
+      }
+
+      function mostrarExito(mensaje) {
+        alert('✅ ' + mensaje);
+      }
+
+      // Cerrar modal al hacer clic fuera
+      window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        }
+      }
+
+      function cerrarTodosModales() {
+    // Cerrar todos los modales visibles
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+    document.getElementById('modalOverlay').style.display = 'none';
+}
+function probarModal() {
+    document.getElementById('contenidoDetalle').innerHTML = '<h3>¡Prueba exitosa!</h3><p>El modal debería estar centrado.</p>';
+    abrirModal('modalDetalle');
+}
+      // Función para generar alerta simple (mantener compatibilidad)
+      async function generarAlerta(idDeteccion) {
+        if (confirm('¿Generar alerta simple desde esta detección?')) {
+          try {
+            const response = await fetch(`/api/detecciones/${idDeteccion}/generar-alerta`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                tipoAlerta: 'GENERADA_DESDE_DETECCION',
+                descripcion: 'Alerta generada automáticamente desde detección ' + idDeteccion,
+                nivelCriticidad: 'MEDIA',
+                idUsuario: window.obtenerIdUsuario ? window.obtenerIdUsuario() : null
+              })
+            });
+            
+            if (response.ok) {
+              const alerta = await response.json();
+              mostrarExito(`Alerta #${alerta.idAlerta} generada correctamente`);
+              cargarDetecciones();
+            }
+          } catch (error) {
+            console.error('Error generando alerta:', error);
+            mostrarError('Error al generar la alerta');
+          }
+        }
+      }
     </script>
+
+<script>
+// Añade esta función si no la tienes
+function probarModalCentrado() {
+  console.log('Probando modal...');
+  
+  const modal = document.getElementById('modalDetalle');
+  const overlay = document.getElementById('modalOverlay');
+  
+  if (!modal) {
+    alert('No se encontró modalDetalle');
+    return;
+  }
+  
+  if (!overlay) {
+    alert('No se encontró modalOverlay');
+    return;
+  }
+  
+  // Forzar estilos directamente
+  modal.style.cssText = `
+    display: block !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1000 !important;
+    background: white !important;
+    padding: 30px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5) !important;
+    width: 500px !important;
+  `;
+  
+  overlay.style.cssText = `
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0,0,0,0.7) !important;
+    z-index: 999 !important;
+  `;
+  
+  // Poner contenido de prueba
+  document.getElementById('contenidoDetalle').innerHTML = 
+    '<h3>¡Modal de prueba!</h3><p>Si esto se ve centrado, el problema está en tu CSS o JavaScript.</p>';
+}
+</script>
+
+<div id="modalOverlay" class="modal-overlay" onclick="cerrarModalDesdeOverlay()"></div>
+
 </body>
 </html>

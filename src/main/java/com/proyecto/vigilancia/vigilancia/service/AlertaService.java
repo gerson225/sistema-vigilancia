@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,4 +114,196 @@ private boolean filtrarPorCriticidad(Alerta alerta, String nivelCriticidad) {
     return nivelCriticidad.equals(alerta.getNivelCriticidad());
 }
 
-}
+    // 🔥 NUEVO: Métodos para las nuevas funcionalidades
+    public Alerta escalarAlerta(Integer idAlerta, String motivo) {
+        Alerta alerta = buscarPorId(idAlerta);
+        alerta.setNivelCriticidad("CRITICA");
+        agregarAlHistorial(alerta, "ESCALADA", "Escalada a crítica. Motivo: " + motivo);
+        return alertaRepository.save(alerta);
+    }
+
+    public Alerta reasignarAlerta(Integer idAlerta, Usuario nuevoResponsable, String motivo) {
+        Alerta alerta = buscarPorId(idAlerta);
+        Usuario anteriorResponsable = alerta.getUsuarioResponsable();
+        
+        alerta.setUsuarioResponsable(nuevoResponsable);
+        alerta.setEstadoAlerta("EN_PROCESO");
+        
+        String historico = String.format("Reasignada de %s a %s. Motivo: %s",
+            anteriorResponsable != null ? anteriorResponsable.getNombre() : "Sin asignar",
+            nuevoResponsable.getNombre(),
+            motivo);
+        
+        agregarAlHistorial(alerta, "REASIGNADA", historico);
+        return alertaRepository.save(alerta);
+    }
+
+    public Alerta marcarFalsaAlarma(Integer idAlerta, String motivo) {
+        Alerta alerta = buscarPorId(idAlerta);
+        alerta.setEsFalsaAlarma(true);
+        alerta.setEstadoAlerta("DESCARTADA");
+        alerta.setObservacionesResolucion("Marcada como falsa alarma: " + motivo);
+        agregarAlHistorial(alerta, "FALSA_ALARMA", motivo);
+        return alertaRepository.save(alerta);
+    }
+
+    public Alerta resolverAlertaConObservacion(Integer idAlerta, String accionesTomadas, String observaciones) {
+        if (observaciones == null || observaciones.trim().isEmpty()) {
+            throw new RuntimeException("Las observaciones son obligatorias");
+        }
+        
+        Alerta alerta = buscarPorId(idAlerta);
+        alerta.setEstadoAlerta("RESUELTA");
+        alerta.setAccionesTomadas(accionesTomadas);
+        alerta.setObservacionesResolucion(observaciones);
+        alerta.setFechaResolucion(LocalDateTime.now());
+        
+        agregarAlHistorial(alerta, "RESUELTA", 
+            "Acciones: " + accionesTomadas + " - Observaciones: " + observaciones);
+        
+        return alertaRepository.save(alerta);
+    }
+
+    public String obtenerHistorial(Integer idAlerta) {
+        Alerta alerta = buscarPorId(idAlerta);
+        return alerta.getHistorial() != null ? alerta.getHistorial() : "Sin historial disponible";
+    }
+
+    public String generarReporteAlerta(Integer idAlerta) {
+        Alerta alerta = buscarPorId(idAlerta);
+        
+        // Formatear fecha
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String fechaFormateada = alerta.getFechaAlerta().format(formatter);
+        
+        String reporte = String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Reporte Alerta #%d - SIVI</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; }
+                    h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                    .section { margin-bottom: 25px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+                    .section h2 { color: #3498db; margin-top: 0; }
+                    .label { font-weight: bold; color: #2c3e50; min-width: 150px; display: inline-block; }
+                    .value { margin-left: 10px; }
+                    .row { margin-bottom: 10px; }
+                    .historial { background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; 
+                               white-space: pre-wrap; font-size: 12px; max-height: 400px; overflow-y: auto; }
+                    .badge { padding: 3px 10px; border-radius: 12px; color: white; font-size: 12px; font-weight: bold; }
+                    .critica { background-color: #8b0000; }
+                    .alta { background-color: #e74c3c; }
+                    .media { background-color: #f39c12; }
+                    .baja { background-color: #27ae60; }
+                </style>
+            </head>
+            <body>
+                <h1>🚨 Reporte de Alerta #%d</h1>
+                <p><i>Generado el: %s</i></p>
+                
+                <div class="section">
+                    <h2>📋 Información General</h2>
+                    <div class="row"><span class="label">ID:</span><span class="value">%d</span></div>
+                    <div class="row"><span class="label">Fecha y Hora:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Tipo:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Nivel de Criticidad:</span>
+                        <span class="value"><span class="badge %s">%s</span></span>
+                    </div>
+                    <div class="row"><span class="label">Estado:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Falsa Alarma:</span><span class="value">%s</span></div>
+                </div>
+                
+                <div class="section">
+                    <h2>👤 Responsables</h2>
+                    <div class="row"><span class="label">Creada por:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Responsable actual:</span><span class="value">%s</span></div>
+                </div>
+                
+                <div class="section">
+                    <h2>📝 Descripción y Resolución</h2>
+                    <div class="row"><span class="label">Descripción:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Acciones Tomadas:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Observaciones:</span><span class="value">%s</span></div>
+                    <div class="row"><span class="label">Fecha Resolución:</span><span class="value">%s</span></div>
+                </div>
+                
+                <div class="section">
+                    <h2>📋 Historial de Acciones</h2>
+                    <div class="historial">%s</div>
+                </div>
+                
+                <div style="margin-top: 40px; text-align: center; color: #7f8c8d; font-size: 12px;">
+                    <hr>
+                    <p>Sistema Inteligente de Vigilancia (SIVI) - Reporte generado automáticamente</p>
+                </div>
+                
+                <script>
+                    window.onload = function() {
+                        // Auto-print option
+                        setTimeout(function() {
+                            if (confirm('¿Desea imprimir este reporte?')) {
+                                window.print();
+                            }
+                        }, 1000);
+                    }
+                </script>
+            </body>
+            </html>
+            """,
+            alerta.getIdAlerta(),
+            alerta.getIdAlerta(),
+            LocalDateTime.now().format(formatter),
+            alerta.getIdAlerta(),
+            fechaFormateada,
+            alerta.getTipoAlerta(),
+            obtenerClaseCriticidad(alerta.getNivelCriticidad()),
+            alerta.getNivelCriticidad(),
+            alerta.getEstadoAlerta(),
+            alerta.getEsFalsaAlarma() != null && alerta.getEsFalsaAlarma() ? "Sí" : "No",
+            alerta.getUsuario() != null ? alerta.getUsuario().getNombre() : "N/A",
+            alerta.getUsuarioResponsable() != null ? alerta.getUsuarioResponsable().getNombre() : "Sin asignar",
+            alerta.getDescripcion() != null ? alerta.getDescripcion() : "N/A",
+            alerta.getAccionesTomadas() != null ? alerta.getAccionesTomadas() : "N/A",
+            alerta.getObservacionesResolucion() != null ? alerta.getObservacionesResolucion() : "N/A",
+            alerta.getFechaResolucion() != null ? alerta.getFechaResolucion().format(formatter) : "No resuelta",
+            alerta.getHistorial() != null ? alerta.getHistorial() : "Sin historial disponible"
+        );
+        
+        return reporte;
+    }
+    
+    private String obtenerClaseCriticidad(String nivel) {
+        if (nivel == null) return "media";
+        switch (nivel.toUpperCase()) {
+            case "CRITICA": return "critica";
+            case "ALTA": return "alta";
+            case "BAJA": return "baja";
+            default: return "media";
+        }
+    }
+    
+    private void agregarAlHistorial(Alerta alerta, String accion, String detalle) {
+        LocalDateTime ahora = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String entrada = String.format("[%s] %s: %s", 
+            ahora.format(formatter), 
+            accion, detalle);
+        
+        String historialActual = alerta.getHistorial();
+        if (historialActual == null) {
+            alerta.setHistorial(entrada);
+        } else {
+            alerta.setHistorial(historialActual + "\n" + entrada);
+        }
+    }
+    
+    // 🔥 NUEVO: Verificar si una detección tiene alertas asociadas
+    public boolean tieneAlertasAsociadas(Integer idDeteccion) {
+        List<Alerta> alertas = alertaRepository.findAll();
+        return alertas.stream()
+            .anyMatch(alerta -> alerta.getDeteccion() != null && 
+                       alerta.getDeteccion().getIdDeteccion().equals(idDeteccion));
+    }
+} 
+

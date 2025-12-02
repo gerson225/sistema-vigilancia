@@ -2,7 +2,7 @@
 
 // 🔥 FUNCIÓN PRINCIPAL QUE SE EJECUTA EN TODAS LAS PÁGINAS
 async function inicializarAplicacion() {
-    console.log('🚀 Inicializando aplicación...');
+    
     
     try {
         // 1. VERIFICAR SESIÓN
@@ -59,7 +59,7 @@ async function verificarSesion() {
 
 // 🔥 ASEGURAR QUE EL HTML TENGA LA ESTRUCTURA CORRECTA
 function asegurarEstructuraHTML() {
-    console.log('🔧 Asegurando estructura HTML...');
+    
     
     // Verificar si existe el sidebar
     let sidebar = document.querySelector('.sidebar');
@@ -297,9 +297,39 @@ async function cerrarSesion() {
     }
 }
 
+// 🔥 FUNCIONES PARA VERIFICAR ROLES (añade al final del archivo)
+function esAdministrador() {
+    const rol = sessionStorage.getItem('rol');
+    return rol === 'ADMINISTRADOR';
+}
+
+function esOperador() {
+    const rol = sessionStorage.getItem('rol');
+    return rol === 'OPERADOR';
+}
+
+function obtenerRol() {
+    return sessionStorage.getItem('rol') || '';
+}
+
+function obtenerIdUsuario() {
+    return sessionStorage.getItem('idUsuario');
+}
+
+function obtenerNombreUsuario() {
+    return sessionStorage.getItem('nombre') || 'Usuario';
+}
+
+// Hacerlas globales
+window.esAdministrador = esAdministrador;
+window.esOperador = esOperador;
+window.obtenerRol = obtenerRol;
+window.obtenerIdUsuario = obtenerIdUsuario;
+window.obtenerNombreUsuario = obtenerNombreUsuario;
+
 // 🔥 INICIALIZAR CUANDO EL DOM ESTÉ LISTO
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM cargado, iniciando aplicación...');
+    
     setTimeout(() => {
         inicializarAplicacion();
     }, 100);
@@ -307,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // También ejecutar cuando la ventana se carga
 window.addEventListener('load', function() {
-    console.log('🔄 Ventana completamente cargada');
+    
     // Re-aplicar estilos por si acaso
     setTimeout(aplicarEstilosDinamicos, 500);
 });

@@ -3,6 +3,7 @@ package com.proyecto.vigilancia.vigilancia.service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.proyecto.vigilancia.vigilancia.entity.Usuario;
 import com.proyecto.vigilancia.vigilancia.repository.UsuarioRepository;
@@ -165,4 +166,23 @@ public class UsuarioService {
     public Optional<Usuario> buscarPorId(Integer idUsuario) {
     return usuarioRepository.findById(idUsuario);
 }
-}
+// 🔥 NUEVO: Obtener usuarios activos
+    public List<Usuario> obtenerUsuariosActivos() {
+        // Si no tienes campo de estado, simplemente devuelve todos
+        return usuarioRepository.findAll();
+    }
+
+    // 🔥 NUEVO: Buscar administrador
+    public Optional<Usuario> buscarAdministrador() {
+        return usuarioRepository.findAll().stream()
+            .filter(u -> "ADMINISTRADOR".equals(u.getRol()))
+            .findFirst();
+    }
+
+    // 🔥 NUEVO: Obtener operadores
+    public List<Usuario> obtenerOperadores() {
+        return usuarioRepository.findAll().stream()
+            .filter(u -> "OPERADOR".equals(u.getRol()))
+            .collect(Collectors.toList());
+    }
+} 

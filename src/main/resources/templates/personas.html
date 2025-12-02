@@ -5,13 +5,10 @@
     <title>Gestión de Personas - SIVI</title>
     <link rel="stylesheet" href="/css/layout.css">
     <style>
-        
-        
         h1 {
             color: #2c3e50;
             margin-bottom: 20px;
         }
-        
         .header-actions {
             display: flex;
             justify-content: space-between;
@@ -27,7 +24,6 @@
             font-size: 14px;
             transition: background 0.3s;
         }
-        
         .btn-primary {
             background: #3498db;
             color: white;
@@ -320,21 +316,46 @@
 
         // Función para cargar personas
         async function cargarPersonas() {
+    
+    
     try {
-        const response = await fetch('/api/personas');
+        // Por defecto, cargar todas las personas (filtros vacíos)
+        const filtros = {
+            nombre: '',
+            dni: '',
+            tipoPersona: ''
+        };
+        
+        const response = await fetch('/api/personas/filtrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(filtros)
+        });
+        
         if (response.ok) {
             const personas = await response.json();
-            console.log('✅ Personas cargadas:', personas); // Para debug
+            
             actualizarTablaPersonas(personas);
             actualizarEstadisticas(personas);
         } else {
-            console.log('❌ API no disponible, usando datos de prueba');
-            // Datos de prueba si no hay API
-            cargarPersonasPrueba();
+            
+            
+            // Fallback al endpoint estándar
+            const responseStd = await fetch('/api/personas');
+            if (responseStd.ok) {
+                const personas = await responseStd.json();
+                
+                actualizarTablaPersonas(personas);
+                actualizarEstadisticas(personas);
+            } else {
+                console.log('❌ Ambos endpoints fallaron, usando datos de prueba');
+                cargarPersonasPrueba();
+            }
         }
     } catch (error) {
         console.error('Error cargando personas:', error);
-        // 🔥 SI HAY ERROR, USAR DATOS DE PRUEBA DIRECTAMENTE
         cargarPersonasPrueba();
     }
 }
@@ -419,8 +440,44 @@
             });
         }
         
-        // 🔥 FUNCIÓN PARA GENERAR SIDEBAR DINÁMICO SEGÚN EL ROL
+function limpiarFiltros() {
+    
+    
+    // Limpiar inputs de filtro
+    document.getElementById('filtroNombre').value = '';
+    document.getElementById('filtroDni').value = '';
+    document.getElementById('filtroTipo').value = '';
+    
+    // Recargar todas las personas
+    cargarPersonas();
+}
 
+// Permitir filtrar con Enter
+document.addEventListener('DOMContentLoaded', function() {
+    const inputsFiltro = ['filtroNombre', 'filtroDni'];
+    
+    inputsFiltro.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filtrarPersonas();
+                }
+            });
+        }
+    });
+    
+    // También permitir Enter en el select
+    const selectFiltro = document.getElementById('filtroTipo');
+    if (selectFiltro) {
+        selectFiltro.addEventListener('change', function() {
+            filtrarPersonas();
+        });
+    }
+    
+    // Cargar personas al inicio
+    cargarPersonas();
+});
 
         // Función para actualizar estadísticas
         function actualizarEstadisticas(personas) {
@@ -531,25 +588,111 @@
                 }
             }
         }
-
         function verHistorial(idPersona) {
             alert(`📊 Mostrando historial de detecciones para persona ${idPersona}\n\nEsta función mostraría todas las detecciones asociadas a esta persona.`);
             // En una implementación completa, esto navegaría a una página de historial
             // o abriría un modal con la lista de detecciones
         }
-
-        function filtrarPersonas() {
-            alert('🔍 Filtrado de personas - Por implementar completamente');
-            // Implementación básica por ahora
-            cargarPersonas();
+        async function filtrarPersonas() {
+    
+    
+    const nombre = document.getElementById('filtroNombre').value.trim();
+    const dni = document.getElementById('filtroDni').value.trim();
+    const tipoPersona = document.getElementById('filtroTipo').value;
+    
+    console.log('📊 Filtros - nombre:', nombre, 'dni:', dni, 'tipoPersona:', tipoPersona);
+    
+    try {
+        // Mostrar carga
+        const tbody = document.getElementById('tablaPersonas');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">⏳ Filtrando personas...</td></tr>';
+        
+        // Preparar filtros
+        const filtros = {};
+        if (nombre) filtros.nombre = nombre;
+        if (dni) filtros.dni = dni;
+        if (tipoPersona) filtros.tipoPersona = tipoPersona;
+        
+        
+        
+        const response = await fetch('/api/personas/filtrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(filtros)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error en la respuesta: ' + response.status);
         }
-
-        function limpiarFiltros() {
-            document.getElementById('filtroNombre').value = '';
-            document.getElementById('filtroDni').value = '';
-            document.getElementById('filtroTipo').value = '';
-            cargarPersonas();
+        
+        const personas = await response.json();
+        console.log('✅ Personas recibidas:', personas.length);
+        
+        // Mostrar resultados
+        if (personas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; color: #7f8c8d;">📭 No se encontraron personas con los filtros aplicados</td></tr>';
+        } else {
+            actualizarTablaPersonas(personas);
         }
+        
+        actualizarEstadisticas(personas);
+        
+    } catch (error) {
+        console.error('❌ Error en filtrado:', error);
+        
+        // Fallback: intentar con endpoint de prueba
+        try {
+            
+            
+            let url = '/api/personas/test-filtrar?';
+            if (nombre) url += `nombre=${encodeURIComponent(nombre)}&`;
+            if (dni) url += `dni=${encodeURIComponent(dni)}&`;
+            if (tipoPersona) url += `tipoPersona=${encodeURIComponent(tipoPersona)}&`;
+            
+            const response = await fetch(url);
+            if (response.ok) {
+                const personas = await response.json();
+                
+                actualizarTablaPersonas(personas);
+                actualizarEstadisticas(personas);
+                return;
+            }
+        } catch (error2) {
+            console.error('❌ También falló endpoint de prueba:', error2);
+        }
+        
+        // Último fallback: filtrar en el cliente
+        console.log('🔄 Filtrando en cliente...');
+        const response = await fetch('/api/personas');
+        if (response.ok) {
+            const todasPersonas = await response.json();
+            
+            const personasFiltradas = todasPersonas.filter(persona => {
+                let cumple = true;
+                
+                if (nombre) {
+                    cumple = cumple && persona.nombre.toLowerCase().includes(nombre.toLowerCase());
+                }
+                
+                if (dni) {
+                    cumple = cumple && persona.dni.includes(dni);
+                }
+                
+                if (tipoPersona) {
+                    cumple = cumple && persona.tipoPersona === tipoPersona;
+                }
+                
+                return cumple;
+            });
+            
+            console.log('✅ Personas filtradas en cliente:', personasFiltradas.length);
+            actualizarTablaPersonas(personasFiltradas);
+            actualizarEstadisticas(personasFiltradas);
+        }
+    }
+}
     </script>
 </body>
 </html>

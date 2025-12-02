@@ -47,13 +47,26 @@ public class Alerta {
     @Column(name = "estado_alerta")
     private String estadoAlerta; // PENDIENTE, EN_PROCESO, RESUELTA, DESCARTADA
 
-    @Column(name = "acciones_tomadas")
-    private String accionesTomadas;
-
     @ManyToOne
     @JoinColumn(name = "id_usuario_responsable")
     private Usuario usuarioResponsable;
 
     @Column(name = "fecha_resolucion")
     private LocalDateTime fechaResolucion;
+    // 🔥 NUEVOS CAMPOS PARA MEJORAR EL SISTEMA
+
+
+    @Column(name = "acciones_tomadas")
+    private String accionesTomadas;
+    
+    // 🔥🔥🔥 NUEVOS CAMPOS PARA LAS FUNCIONALIDADES EXTRA
+    @Column(name = "es_falsa_alarma")
+    private Boolean esFalsaAlarma = false;
+
+    @Column(name = "observaciones_resolucion")
+    private String observacionesResolucion;
+
+    @Column(name = "historial", columnDefinition = "TEXT")
+    private String historial;
 }
+

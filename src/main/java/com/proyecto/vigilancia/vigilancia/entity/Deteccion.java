@@ -33,6 +33,12 @@ public class Deteccion {
     @JoinColumn(name = "id_camara", referencedColumnName = "id_camara")
     private Camara camara;
 
+    @Column(name = "revisado")
+    private Boolean revisado = false;
+
+    @Column(name = "fecha_revision")
+    private LocalDateTime fechaRevision;
+
     @Column(name = "fecha_hora")
     private LocalDateTime fechaHora;
 
@@ -54,6 +60,9 @@ public class Deteccion {
     @Column(name = "imagen_url")
     private String imagenUrl;
 
+    @Column(name = "id_usuario_revision")
+    private Integer usuarioRevision;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
     private EstadoDeteccion estado;

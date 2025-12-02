@@ -6,6 +6,105 @@
     <link rel="stylesheet" href="/css/layout.css">
     <style>
         /* 🔥 ESTILOS ESPECÍFICOS SOLO PARA ESTA PÁGINA */
+        .btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 2px;
+    transition: all 0.3s;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-info {
+    background: #3498db;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2980b9;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #219653;
+}
+
+/* Badges para estados */
+.badge-activa {
+    background: #27ae60;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-inactiva {
+    background: #e74c3c;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Formulario */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -219,6 +318,205 @@
             // Implementar similar al módulo de personas
             alert(`✏️ Editar cámara ${id} - Por implementar`);
         }
+        let camaraEditando = null;
+
+// Función para abrir modal de edición
+async function editarCamara(idCamara) {
+    try {
+        console.log(`✏️ Editando cámara ID: ${idCamara}`);
+        
+        // Obtener datos de la cámara
+        const response = await fetch(`/api/camaras/${idCamara}`);
+        
+        if (!response.ok) {
+            throw new Error('Cámara no encontrada');
+        }
+        
+        const camara = await response.json();
+        console.log('📊 Datos de cámara:', camara);
+        
+        // Guardar ID de la cámara que estamos editando
+        camaraEditando = camara.idCamara;
+        
+        // Llenar formulario con datos actuales
+        document.getElementById('nombreCamara').value = camara.nombreCamara || '';
+        document.getElementById('ubicacion').value = camara.ubicacion || '';
+        document.getElementById('direccionIp').value = camara.direccionIp || '';
+        document.getElementById('estado').value = camara.estado || 'ACTIVA';
+        
+        // Cambiar título del modal
+        document.querySelector('.config-section h2').textContent = '✏️ Editar Cámara';
+        
+        // Cambiar texto del botón
+        const btnGuardar = document.querySelector('.btn-success');
+        btnGuardar.textContent = '💾 Actualizar Cámara';
+        btnGuardar.onclick = actualizarCamara; // Cambiar función
+        
+        // Desplazar a la sección del formulario
+        document.querySelector('.config-section').scrollIntoView({ behavior: 'smooth' });
+        
+    } catch (error) {
+        console.error('Error cargando cámara:', error);
+        alert('❌ Error al cargar los datos de la cámara: ' + error.message);
+    }
+}
+
+// Función para actualizar cámara
+async function actualizarCamara() {
+    if (!camaraEditando) {
+        alert('❌ No hay cámara seleccionada para editar');
+        return;
+    }
+    
+    const camaraData = {
+        nombreCamara: document.getElementById('nombreCamara').value,
+        ubicacion: document.getElementById('ubicacion').value,
+        direccionIp: document.getElementById('direccionIp').value,
+        estado: document.getElementById('estado').value
+    };
+
+    // Validaciones básicas
+    if (!camaraData.nombreCamara || !camaraData.ubicacion || !camaraData.direccionIp) {
+        alert('❌ Por favor complete todos los campos obligatorios');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/camaras/${camaraEditando}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(camaraData)
+        });
+
+        if (response.ok) {
+            alert('✅ Cámara actualizada correctamente');
+            
+            // Restaurar formulario a modo "nueva cámara"
+            resetearFormulario();
+            
+            // Recargar lista de cámaras
+            cargarCamaras();
+            
+        } else {
+            const error = await response.text();
+            alert('❌ Error al actualizar la cámara: ' + error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error al actualizar la cámara');
+    }
+}
+
+// Función para resetear formulario a modo "nueva cámara"
+function resetearFormulario() {
+    camaraEditando = null;
+    document.getElementById('nombreCamara').value = '';
+    document.getElementById('ubicacion').value = '';
+    document.getElementById('direccionIp').value = '';
+    document.getElementById('estado').value = 'ACTIVA';
+    
+    // Restaurar título y botón
+    document.querySelector('.config-section h2').textContent = '➕ Registrar Nueva Cámara';
+    
+    const btnGuardar = document.querySelector('.btn-success');
+    btnGuardar.textContent = '💾 Guardar Cámara';
+    btnGuardar.onclick = guardarCamara; // Volver a función original
+}
+
+// Modificar la función guardarCamara existente para que llame a resetearFormulario
+async function guardarCamara() {
+    const camaraData = {
+        nombreCamara: document.getElementById('nombreCamara').value,
+        ubicacion: document.getElementById('ubicacion').value,
+        direccionIp: document.getElementById('direccionIp').value,
+        estado: document.getElementById('estado').value
+    };
+
+    // Validaciones básicas
+    if (!camaraData.nombreCamara || !camaraData.ubicacion || !camaraData.direccionIp) {
+        alert('❌ Por favor complete todos los campos obligatorios');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/camaras', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(camaraData)
+        });
+
+        if (response.ok) {
+            alert('✅ Cámara registrada correctamente');
+            resetearFormulario();
+            cargarCamaras();
+        } else {
+            const error = await response.text();
+            alert('❌ Error al registrar la cámara: ' + error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error al registrar la cámara');
+    }
+}
+
+// Modificar la función actualizarTablaCamaras para incluir botón de editar
+function actualizarTablaCamaras(camaras) {
+    const tbody = document.getElementById('tablaCamaras');
+    tbody.innerHTML = '';
+
+    camaras.forEach(camara => {
+        const row = `
+            <tr>
+                <td>${camara.idCamara}</td>
+                <td>${camara.nombreCamara}</td>
+                <td>${camara.ubicacion}</td>
+                <td>${camara.direccionIp}</td>
+                <td>
+                    <span class="badge badge-${camara.estado.toLowerCase()}">
+                        ${camara.estado}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-warning" onclick="editarCamara(${camara.idCamara})">✏️ Editar</button>
+                    <button class="btn btn-danger" onclick="eliminarCamara(${camara.idCamara})">🗑️ Eliminar</button>
+                    <button class="btn btn-info" onclick="toggleEstado(${camara.idCamara})">
+                        ${camara.estado === 'ACTIVA' ? '⏸️ Pausar' : '▶️ Activar'}
+                    </button>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+// Agregar botón "Cancelar edición" al formulario
+function agregarBotonCancelar() {
+    const form = document.getElementById('formCamara');
+    const btnGuardar = document.querySelector('.btn-success');
+    
+    // Crear botón cancelar si no existe
+    if (!document.querySelector('.btn-cancelar')) {
+        const btnCancelar = document.createElement('button');
+        btnCancelar.type = 'button';
+        btnCancelar.className = 'btn btn-danger btn-cancelar';
+        btnCancelar.textContent = '❌ Cancelar';
+        btnCancelar.style.marginLeft = '10px';
+        btnCancelar.onclick = resetearFormulario;
+        
+        // Insertar después del botón guardar
+        btnGuardar.parentNode.insertBefore(btnCancelar, btnGuardar.nextSibling);
+    }
+}
+
+// Inicializar cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    agregarBotonCancelar();
+    cargarCamaras();
+});
     </script>
 </body>
 </html>

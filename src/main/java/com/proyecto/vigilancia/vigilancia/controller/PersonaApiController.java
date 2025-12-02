@@ -7,7 +7,9 @@ import com.proyecto.vigilancia.vigilancia.dto.PersonaDTO;
 import com.proyecto.vigilancia.vigilancia.entity.Persona;
 import com.proyecto.vigilancia.vigilancia.service.PersonaService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -20,6 +22,116 @@ public class PersonaApiController {
         this.personaService = personaService;
     }
 
+    @GetMapping("/filtrar-simple")
+    public ResponseEntity<?> filtrarPersonasSimple(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String tipoPersona) {
+        
+        try {
+            System.out.println("🔍 Filtros simples - nombre: " + nombre + ", dni: " + dni + ", tipoPersona: " + tipoPersona);
+            
+            List<Persona> personas = personaService.filtrarPersonasSimple(nombre, dni, tipoPersona);
+            
+            // Limpiar relaciones circulares
+            for (Persona persona : personas) {
+                if (persona.getDetecciones() != null) {
+                    persona.getDetecciones().forEach(deteccion -> {
+                        deteccion.setPersona(null);
+                    });
+                }
+            }
+            
+            return ResponseEntity.ok(personas);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error en filtrarPersonasSimple: " + e.getMessage());
+            
+            // Fallback: devolver todas las personas
+            List<Persona> todasPersonas = personaService.obtenerTodasLasPersonas();
+            
+            // Limpiar relaciones
+            for (Persona persona : todasPersonas) {
+                if (persona.getDetecciones() != null) {
+                    persona.getDetecciones().forEach(deteccion -> {
+                        deteccion.setPersona(null);
+                    });
+                }
+            }
+            
+            return ResponseEntity.ok(todasPersonas);
+        }
+    }
+
+    @PostMapping("/filtrar")
+    public ResponseEntity<?> filtrarPersonas(@RequestBody Map<String, String> filtros) {
+        try {
+            System.out.println("🔍 Filtros recibidos en controller: " + filtros);
+            
+            String nombre = filtros.getOrDefault("nombre", "");
+            String dni = filtros.getOrDefault("dni", "");
+            String tipoPersona = filtros.getOrDefault("tipoPersona", "");
+            
+            // Usar el método simple que filtra en memoria
+            List<Persona> personasFiltradas = personaService.filtrarPersonasSimple(nombre, dni, tipoPersona);
+            
+            System.out.println("✅ Personas encontradas: " + personasFiltradas.size());
+            
+            // Limpiar relaciones circulares
+            for (Persona persona : personasFiltradas) {
+                if (persona.getDetecciones() != null) {
+                    persona.getDetecciones().forEach(deteccion -> {
+                        deteccion.setPersona(null);
+                        if (deteccion.getCamara() != null) {
+                            deteccion.getCamara().setUsuario(null);
+                        }
+                    });
+                }
+            }
+            
+            return ResponseEntity.ok(personasFiltradas);
+            
+        } catch (Exception e) {
+            System.err.println("❌ ERROR en filtrarPersonas: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Devolver todas las personas como fallback
+            List<Persona> todasPersonas = personaService.obtenerTodasLasPersonas();
+            
+            // Limpiar relaciones
+            for (Persona persona : todasPersonas) {
+                if (persona.getDetecciones() != null) {
+                    persona.getDetecciones().forEach(deteccion -> {
+                        deteccion.setPersona(null);
+                    });
+                }
+            }
+            
+            return ResponseEntity.ok(todasPersonas);
+        }
+    }
+    @GetMapping("/test-filtrar")
+    public ResponseEntity<?> testFiltrar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String tipoPersona) {
+        
+        System.out.println("🧪 Test filtro - nombre: " + nombre + ", dni: " + dni + ", tipo: " + tipoPersona);
+        
+        List<Persona> resultados = personaService.filtrarPersonasSimple(nombre, dni, tipoPersona);
+        
+        // Limpiar relaciones
+        for (Persona persona : resultados) {
+            if (persona.getDetecciones() != null) {
+                persona.getDetecciones().forEach(deteccion -> {
+                    deteccion.setPersona(null);
+                });
+            }
+        }
+        
+        return ResponseEntity.ok(resultados);
+    }
+    
     @GetMapping
     public List<Persona> obtenerPersonas() {
         List<Persona> personas = personaService.obtenerTodasLasPersonas();
