@@ -1,7 +1,7 @@
 # Sistema de Vigilancia y Monitoreo Inteligente
 
 ## Información General
-- **Estudiantes:** Gerson David Ochoa Alarcón, Erick Martines  
+- **Estudiantes:** Gerson David Ochoa Alarcón, Erick Gerardo Martinez Vega 
 - **Docente:** Milton Freddy Amache Sanchez  
 - **Universidad:** Universidad Tecnológica del Perú (UTP)  
 - **Fecha de inicio:** Septiembre 2025  
